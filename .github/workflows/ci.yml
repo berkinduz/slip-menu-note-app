@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: test
+        run: swift test
+      - name: build app
+        run: ./scripts/build-app.sh "$RUNNER_TEMP/Slip.app"
+      - name: verify bundle
+        run: codesign --verify --strict "$RUNNER_TEMP/Slip.app"
