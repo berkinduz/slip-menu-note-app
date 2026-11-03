@@ -19,4 +19,4 @@ Keep changes focused, include tests when they help verify behavior, and describe
 
 ## Releases
 
-Maintainers update the version in `Resources/Info.plist` and the release notes, then push a matching `v` tag such as `v0.1.0`. The release workflow tests and builds on an Apple Silicon macOS runner, signs the app ad hoc, and publishes the ZIP with a SHA-256 checksum. Signing with a Developer ID and notarization are not part of this workflow.
+Maintainers update the version in `Resources/Info.plist` and the release notes, then push a matching `v` tag such as `v0.2.0`. The release workflow tests and builds on an Apple Silicon macOS runner, signs the app ad hoc, and publishes the ZIP with a SHA-256 checksum. Signing with a Developer ID and notarization are not part of this workflow.

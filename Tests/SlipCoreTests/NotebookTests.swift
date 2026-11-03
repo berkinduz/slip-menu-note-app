@@ -20,14 +20,14 @@ struct NotebookTests {
         let notebook = Notebook(repository: repository)
         #expect(notebook.canWrite)
         #expect(notebook.saveState == .saved)
-        #expect(notebook.library.version == 2)
+        #expect(notebook.library.version == 3)
         var migrated = note
         migrated.tags = ["legacy", "work/ideas", "multi word"]
         var migratedTrash = trashed
         migratedTrash.tags = ["archived"]
         #expect(notebook.library.notes == [migrated, migratedTrash])
         #expect(notebook.library.selectedNoteID == note.id)
-        #expect(try repository.load()?.version == 2)
+        #expect(try repository.load()?.version == 3)
 
         let reopened = Notebook(repository: repository)
         #expect(reopened.library.notes == [migrated, migratedTrash])
@@ -39,7 +39,7 @@ struct NotebookTests {
         #expect(afterRemoval.library.filtered(by: .tag("work")).isEmpty)
     }
 
-    @Test("New version-two notes keep body hashtags literal across restarts")
+    @Test("New notes keep body hashtags literal across restarts")
     func manualTagsOnly() throws {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: folder) }
@@ -50,7 +50,7 @@ struct NotebookTests {
         notebook.updateNote(note.id, body: body)
         notebook.flush()
         let reopened = Notebook(repository: repository)
-        #expect(reopened.library.version == 2)
+        #expect(reopened.library.version == 3)
         #expect(reopened.selectedNote?.body == body)
         #expect(reopened.selectedNote?.allTags == [])
         #expect(reopened.library.tags.isEmpty)
@@ -124,6 +124,7 @@ struct NotebookTests {
         #expect(!notebook.canWrite)
         #expect(notebook.errorMessage != nil)
         _ = notebook.createNote()
+        #expect(notebook.createFolder(name: "Work") == nil)
         notebook.flush()
         #expect(try Data(contentsOf: repository.fileURL) == bytes)
     }

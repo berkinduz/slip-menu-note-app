@@ -29,6 +29,10 @@ public final class Notebook {
                     library.version = 2
                     isDirty = true
                 }
+                if library.version == 2 {
+                    library.version = 3
+                    isDirty = true
+                }
             } else {
                 library = NoteLibrary(notes: initialNotes, selectedNoteID: initialNotes.first?.id)
                 isDirty = true
@@ -44,13 +48,59 @@ public final class Notebook {
     public var selectedNote: Note? { library.notes.first { $0.id == library.selectedNoteID } }
 
     @discardableResult
-    public func createNote(tags: [String] = []) -> Note {
-        let note = Note(tags: tags)
+    public func createNote(tags: [String] = [], folderID: UUID? = nil) -> Note {
+        let note = Note(tags: tags, folderID: folderID)
         guard canWrite else { return note }
         library.notes.insert(note, at: 0)
         library.selectedNoteID = note.id
         scheduleSave()
         return note
+    }
+
+    @discardableResult
+    public func createFolder(name: String, parentID: UUID? = nil) -> NoteFolder? {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard canWrite, !name.isEmpty else { return nil }
+        if let parentID, !library.folders.contains(where: { $0.id == parentID }) { return nil }
+        let folder = NoteFolder(name: name, parentID: parentID)
+        library.folders.append(folder)
+        scheduleSave()
+        return folder
+    }
+
+    public func renameFolder(_ id: UUID, name: String) {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard canWrite, !name.isEmpty, let index = library.folders.firstIndex(where: { $0.id == id }) else { return }
+        library.folders[index].name = name
+        scheduleSave()
+    }
+
+    public func moveFolder(_ id: UUID, to parentID: UUID?) {
+        guard canWrite, let index = library.folders.firstIndex(where: { $0.id == id }) else { return }
+        if let parentID {
+            guard library.folders.contains(where: { $0.id == parentID }),
+                  !library.descendantFolderIDs(id).contains(parentID) else { return }
+        }
+        library.folders[index].parentID = parentID
+        scheduleSave()
+    }
+
+    public func removeFolder(_ id: UUID) {
+        guard canWrite, let folder = library.folders.first(where: { $0.id == id }) else { return }
+        let removedIDs = library.descendantFolderIDs(id)
+        library.folders.removeAll { removedIDs.contains($0.id) }
+        for index in library.notes.indices {
+            if let folderID = library.notes[index].folderID, removedIDs.contains(folderID) {
+                library.notes[index].folderID = folder.parentID
+            }
+        }
+        scheduleSave()
+    }
+
+    public func moveNote(_ id: UUID, to folderID: UUID?) {
+        guard canWrite, let index = library.notes.firstIndex(where: { $0.id == id }) else { return }
+        library.notes[index].folderID = folderID
+        scheduleSave()
     }
 
     public func select(_ id: UUID?) {

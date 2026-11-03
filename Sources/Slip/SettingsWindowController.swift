@@ -4,7 +4,12 @@ import SwiftUI
 enum SettingsPane: String, CaseIterable {
     case appearance, writing
 
-    var title: String { rawValue }
+    var title: String {
+        switch self {
+        case .appearance: "Appearance"
+        case .writing: "Writing"
+        }
+    }
     var symbol: String { self == .appearance ? "paintpalette" : "text.alignleft" }
     var identifier: NSToolbarItem.Identifier { .init("slip.settings.\(rawValue)") }
 }
@@ -23,8 +28,8 @@ final class SettingsWindowController: NSObject, NSToolbarDelegate {
         )
         self.window = window
         super.init()
-        window.title = "slip settings"
-        window.setAccessibilityLabel("slip settings")
+        window.title = "Slip Settings"
+        window.setAccessibilityLabel("Slip Settings")
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
         window.center()

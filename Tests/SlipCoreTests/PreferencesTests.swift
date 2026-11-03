@@ -51,7 +51,7 @@ struct PreferencesTests {
         #expect(try Data(contentsOf: file) == original)
     }
 
-    @Test("Dragon uses the installed theme's editor, selection, and Markdown colors")
+    @Test("Dragon preserves editor colors and uses neutral command menu surfaces")
     func exactDragonPalette() {
         let palette = ThemePalette.kanagawaDragon
         #expect(palette.canvas == 0x181616)
@@ -62,8 +62,8 @@ struct PreferencesTests {
         #expect(palette.italic == 0xC4746E)
         #expect(palette.code == 0x8992A7)
         #expect(palette.link == 0x6A9589)
-        #expect(palette.popup == 0x223249)
-        #expect(palette.popupSelection == 0x2D4F67)
+        #expect(palette.popup == palette.hover)
+        #expect(palette.popupSelection == palette.rowSelection)
     }
     @Test("Tag icons survive a settings restart")
     func tagIconsPersist() throws {

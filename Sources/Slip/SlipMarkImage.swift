@@ -7,7 +7,7 @@ enum SlipMarkImage {
         draw(in: NSRect(x: 0, y: 0, width: 20, height: 20))
         image.unlockFocus()
         image.isTemplate = true
-        image.accessibilityDescription = "slip"
+        image.accessibilityDescription = "Slip"
         return image
     }
 

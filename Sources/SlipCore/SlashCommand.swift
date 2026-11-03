@@ -7,14 +7,14 @@ public enum SlashCommand: String, CaseIterable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .heading: "heading"
-        case .bullet: "bulleted list"
-        case .task: "task list"
-        case .code: "code block"
-        case .quote: "quote"
-        case .divider: "divider"
-        case .link: "link"
-        case .highlight: "highlight"
+        case .heading: "Heading"
+        case .bullet: "Bulleted List"
+        case .task: "Task List"
+        case .code: "Code Block"
+        case .quote: "Quote"
+        case .divider: "Divider"
+        case .link: "Link"
+        case .highlight: "Highlight"
         }
     }
 

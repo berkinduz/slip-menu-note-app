@@ -100,7 +100,7 @@ private final class SlashMenuState {
             window.backgroundColor = .clear
             window.hasShadow = true
             window.level = .popUpMenu
-            window.setAccessibilityLabel("quick commands")
+            window.setAccessibilityLabel("Quick Commands")
             panel = window
         }
         guard let panel else { return }

@@ -41,10 +41,10 @@ import AppKit
         notebook.flush()
         guard notebook.canWrite, notebook.saveState == .failed else { return .terminateNow }
         let alert = NSAlert()
-        alert.messageText = "your latest changes haven’t been saved."
-        alert.informativeText = "keep slip open to try again, or quit and lose the unsaved changes."
-        alert.addButton(withTitle: "keep open")
-        alert.addButton(withTitle: "quit without saving")
+        alert.messageText = "Your latest changes haven’t been saved."
+        alert.informativeText = "Keep Slip open to try again, or quit and lose the unsaved changes."
+        alert.addButton(withTitle: "Keep open")
+        alert.addButton(withTitle: "Quit without saving")
         return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
     }
 

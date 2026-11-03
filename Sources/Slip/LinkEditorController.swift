@@ -27,10 +27,10 @@ import AppKit
         view = NSView(frame: NSRect(x: 0, y: 0, width: 340, height: 138))
         view.wantsLayer = true
         view.layer?.backgroundColor = style.canvasColor.cgColor
-        addField(textField, label: "text", value: initialText, y: 91)
-        addField(urlField, label: "url", value: initialURL, y: 57)
+        addField(textField, label: "Text", value: initialText, y: 91)
+        addField(urlField, label: "URL", value: initialURL, y: 57)
         urlField.placeholderString = "https://example.com"
-        applyButton.title = "apply"
+        applyButton.title = "Apply"
         applyButton.bezelStyle = .rounded
         applyButton.frame = NSRect(x: 249, y: 13, width: 78, height: 28)
         applyButton.keyEquivalent = "\r"
@@ -38,7 +38,7 @@ import AppKit
         applyButton.action = #selector(applyLink(_:))
         applyButton.isEnabled = !initialURL.isEmpty
         view.addSubview(applyButton)
-        let cancelButton = NSButton(title: "cancel", target: self, action: #selector(cancelLink(_:)))
+        let cancelButton = NSButton(title: "Cancel", target: self, action: #selector(cancelLink(_:)))
         cancelButton.bezelStyle = .rounded
         cancelButton.keyEquivalent = "\u{1b}"
         cancelButton.frame = NSRect(x: 165, y: 13, width: 78, height: 28)
@@ -67,13 +67,13 @@ import AppKit
         guard let owner = editor.window else { return }
         self.owner = owner
         let sheet = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 340, height: 138), styleMask: [.titled], backing: .buffered, defer: false)
-        sheet.title = "link"
+        sheet.title = "Link"
         sheet.titleVisibility = .hidden
         sheet.titlebarAppearsTransparent = true
         sheet.isReleasedWhenClosed = false
         sheet.appearance = owner.appearance
         sheet.contentViewController = self
-        sheet.setAccessibilityLabel("edit link")
+        sheet.setAccessibilityLabel("Edit Link")
         self.sheet = sheet
         owner.beginSheet(sheet) { [weak self] _ in self?.didClose() }
         sheet.makeFirstResponder(initialText.isEmpty ? textField : urlField)

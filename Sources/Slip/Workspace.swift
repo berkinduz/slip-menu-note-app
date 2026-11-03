@@ -18,6 +18,9 @@ final class Workspace {
     }
     var showGuide = false
     var showTags = false
+    var showTagBrowser = false
+    var folderPrompt: FolderPrompt?
+    var folderToRemove: UUID?
     var isEditingLink = false
     var confirmEmptyTrash = false
     var titleRequest = UUID()
@@ -48,6 +51,16 @@ final class Workspace {
         return notebook.library.filtered(by: filter, query: search.text).filter(search.matches)
     }
 
+    var currentFolderID: UUID? {
+        if case .folder(let id) = filter { return id }
+        return nil
+    }
+
+    var filterTitle: String {
+        if let id = currentFolderID { return notebook.library.folderPath(id) }
+        return filter.title
+    }
+
     func openSettings() { onSettings?() }
 
     func editTitle() {
@@ -59,11 +72,13 @@ final class Workspace {
         guard notebook.canWrite else { return }
         let tags: [String]
         if case .tag(let tag) = filter { tags = [tag] } else { tags = [] }
-        if let current = notebook.selectedNote, current.isEmpty, current.deletedAt == nil, current.tags == tags {
+        let folderID = currentFolderID
+        if let current = notebook.selectedNote, current.isEmpty, current.deletedAt == nil,
+           current.tags == tags, current.folderID == folderID {
             query = ""; focusBody()
             return
         }
-        _ = notebook.createNote(tags: tags)
+        _ = notebook.createNote(tags: tags, folderID: folderID)
         query = ""
         if filter == .trash || filter == .pinned { filter = .all }
         focusBody()
@@ -82,7 +97,47 @@ final class Workspace {
 
     func toggleSidebar() {
         sidebarVisible.toggle()
+        settings.preferences.sidebarAtLaunch = sidebarVisible
         onResize?(sidebarVisible)
+    }
+
+    func createFolder(parentID: UUID? = nil) {
+        folderPrompt = FolderPrompt(folderID: nil, parentID: parentID, name: "")
+    }
+
+    func renameFolder(_ folder: NoteFolder) {
+        folderPrompt = FolderPrompt(folderID: folder.id, parentID: folder.parentID, name: folder.name)
+    }
+
+    func saveFolder(_ prompt: FolderPrompt, name: String) {
+        if let id = prompt.folderID {
+            notebook.renameFolder(id, name: name)
+        } else if let folder = notebook.createFolder(name: name, parentID: prompt.parentID) {
+            query = ""
+            changeFilter(.folder(folder.id))
+        }
+        folderPrompt = nil
+    }
+
+    func removeFolder(_ id: UUID) {
+        let parent = notebook.library.folders.first { $0.id == id }?.parentID
+        let removesCurrent = currentFolderID.map { notebook.library.descendantFolderIDs(id).contains($0) } ?? false
+        notebook.removeFolder(id)
+        if removesCurrent { changeFilter(parent.map(NoteFilter.folder) ?? .all) }
+    }
+
+    func moveNote(_ id: UUID, to folderID: UUID?) {
+        notebook.moveNote(id, to: folderID)
+        if !visibleNotes.contains(where: { $0.id == notebook.selectedNote?.id }) {
+            notebook.select(visibleNotes.first?.id)
+        }
+    }
+
+    func moveFolder(_ id: UUID, to parentID: UUID?) {
+        notebook.moveFolder(id, to: parentID)
+        if !visibleNotes.contains(where: { $0.id == notebook.selectedNote?.id }) {
+            notebook.select(visibleNotes.first?.id)
+        }
     }
 
     func search() {
@@ -98,21 +153,23 @@ final class Workspace {
 
     func trash(_ id: UUID) {
         notebook.moveToTrash(id)
-        if notebook.selectedNote == nil { notebook.select(visibleNotes.first?.id) }
-        message("moved to trash")
+        if !visibleNotes.contains(where: { $0.id == notebook.selectedNote?.id }) {
+            notebook.select(visibleNotes.first?.id)
+        }
+        message("Moved to Trash")
     }
 
     func restore(_ id: UUID) {
         notebook.restore(id)
         filter = .all
-        message("note restored")
+        message("Note restored")
     }
 
     func copyMarkdown() {
         guard let note = notebook.selectedNote else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(note.exportedMarkdown, forType: .string)
-        message("markdown copied")
+        message("Markdown copied")
     }
 
     func exportNote() {
@@ -120,14 +177,14 @@ final class Workspace {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
         panel.nameFieldStringValue = note.displayTitle.replacingOccurrences(of: "/", with: "-") + ".md"
-        panel.title = "export markdown"
-        panel.prompt = "export"
+        panel.title = "Export Markdown"
+        panel.prompt = "Export"
         guard let window = NSApp.keyWindow else { return }
         panel.beginSheetModal(for: window) { [weak self] response in
             guard response == .OK, let url = panel.url else { return }
             do {
                 try note.exportedMarkdown.write(to: url, atomically: true, encoding: .utf8)
-                self?.message("note exported")
+                self?.message("Note exported")
             } catch { self?.operationError = error.localizedDescription }
         }
     }

@@ -24,7 +24,7 @@ import Observation
         super.init()
 
         panel.delegate = self
-        panel.title = "slip — quick notes"
+        panel.title = "Slip — Quick Notes"
         panel.identifier = NSUserInterfaceItemIdentifier("SlipCapturePanel")
         panel.isFloatingPanel = true
         panel.level = .floating
@@ -42,17 +42,17 @@ import Observation
         panel.contentView?.wantsLayer = true
         panel.contentView?.layer?.cornerRadius = 13
         panel.contentView?.layer?.masksToBounds = true
-        panel.setAccessibilityLabel("slip quick notes")
+        panel.setAccessibilityLabel("Slip quick notes")
 
         if let button = statusItem.button {
             let image = SlipMarkImage.image()
             image.size = NSSize(width: 19, height: 19)
             button.image = image
-            button.toolTip = "slip · quick notes (⌃⌥n)"
+            button.toolTip = "Slip · Quick Notes (⌃⌥N)"
             button.target = self
             button.action = #selector(statusItemClicked(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            button.setAccessibilityLabel("slip quick notes")
+            button.setAccessibilityLabel("Slip quick notes")
         }
 
         workspace.onDismiss = { [weak self] in self?.dismiss() }
@@ -149,7 +149,7 @@ import Observation
 
     private func dismissIfAllowed() {
         guard panel.isVisible, !workspace.keepOpen, panel.attachedSheet == nil,
-              !workspace.showTags, !workspace.isEditingLink, !workspace.showGuide, !workspace.confirmEmptyTrash,
+              !workspace.showTags, !workspace.showTagBrowser, !workspace.isEditingLink, !workspace.showGuide, !workspace.confirmEmptyTrash,
               workspace.operationError == nil else { return }
         dismiss()
     }
@@ -183,6 +183,7 @@ import Observation
         if event.keyCode == 53 {
             if let editor = panel.firstResponder as? SourceTextView, editor.dismissSlashCommands() { return nil }
             if workspace.showTags { workspace.showTags = false }
+            else if workspace.showTagBrowser { workspace.showTagBrowser = false }
             else if workspace.showGuide { workspace.showGuide = false }
             else { dismiss() }
             return nil
@@ -239,6 +240,10 @@ import Observation
         switch sender.representedObject as? String {
         case "open": show()
         case "new": show(newNote: true)
+        case "newFolder":
+            show()
+            if !workspace.sidebarVisible { workspace.toggleSidebar() }
+            workspace.createFolder()
         case "close":
             if let keyWindow = NSApp.keyWindow, keyWindow !== panel { keyWindow.performClose(nil) }
             else { dismiss() }
@@ -265,17 +270,17 @@ import Observation
 
     private func buildStatusMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(item("open slip", "open"))
-        menu.addItem(item("new note", "new", key: "n"))
+        menu.addItem(item("Open Slip", "open"))
+        menu.addItem(item("New note", "new", key: "n"))
         menu.addItem(.separator())
-        let keep = item("keep open when switching apps", "keepOpen")
+        let keep = item("Keep open when switching apps", "keepOpen")
         keep.state = workspace.keepOpen ? .on : .off
         menu.addItem(keep)
-        menu.addItem(item("settings…", "settings", key: ","))
-        menu.addItem(item("keyboard shortcuts", "guide"))
-        menu.addItem(item("show notes folder", "folder"))
+        menu.addItem(item("Settings…", "settings", key: ","))
+        menu.addItem(item("Keyboard shortcuts", "guide"))
+        menu.addItem(item("Show notes folder", "folder"))
         menu.addItem(.separator())
-        menu.addItem(item("quit slip", "quit", key: "q"))
+        menu.addItem(item("Quit Slip", "quit", key: "q"))
         return menu
     }
 
@@ -285,35 +290,36 @@ import Observation
             let root = NSMenuItem(title: title, action: nil, keyEquivalent: "")
             let menu = NSMenu(title: title); root.submenu = menu; main.addItem(root); return menu
         }
-        let app = submenu("slip")
-        app.addItem(item("settings…", "settings", key: ","))
-        app.addItem(item("keyboard shortcuts", "guide"))
+        let app = submenu("Slip")
+        app.addItem(item("Settings…", "settings", key: ","))
+        app.addItem(item("Keyboard shortcuts", "guide"))
         app.addItem(.separator())
-        app.addItem(NSMenuItem(title: "hide slip", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
-        app.addItem(item("quit slip", "quit", key: "q"))
-        let file = submenu("file")
-        file.addItem(item("new note", "new", key: "n"))
-        file.addItem(item("export markdown…", "export"))
-        file.addItem(item("close", "close", key: "w"))
-        let edit = submenu("edit")
-        for (title, selector, key, shift) in [("undo", "undo:", "z", false), ("redo", "redo:", "z", true), ("cut", "cut:", "x", false), ("copy", "copy:", "c", false), ("paste", "paste:", "v", false), ("select all", "selectAll:", "a", false)] {
+        app.addItem(NSMenuItem(title: "Hide Slip", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+        app.addItem(item("Quit Slip", "quit", key: "q"))
+        let file = submenu("File")
+        file.addItem(item("New note", "new", key: "n"))
+        file.addItem(item("New folder…", "newFolder", key: "n", shift: true))
+        file.addItem(item("Export Markdown…", "export"))
+        file.addItem(item("Close", "close", key: "w"))
+        let edit = submenu("Edit")
+        for (title, selector, key, shift) in [("Undo", "undo:", "z", false), ("Redo", "redo:", "z", true), ("Cut", "cut:", "x", false), ("Copy", "copy:", "c", false), ("Paste", "paste:", "v", false), ("Select all", "selectAll:", "a", false)] {
             let command = NSMenuItem(title: title, action: Selector(selector), keyEquivalent: key)
             command.keyEquivalentModifierMask = shift ? [.command, .shift] : .command
             edit.addItem(command)
         }
-        edit.addItem(item("find a note", "search", key: "f"))
-        let format = submenu("format")
-        format.addItem(item("bold", "bold", key: "b"))
-        format.addItem(item("italic", "italic", key: "i"))
-        format.addItem(item("highlight", "highlight", key: "m", shift: true))
-        format.addItem(item("heading", "heading", key: "h", shift: true))
-        format.addItem(item("bullet list", "bullet", key: "l", shift: true))
-        format.addItem(item("task list", "task", key: "t", shift: true))
-        format.addItem(item("link", "link", key: "k"))
-        format.addItem(item("code", "code", key: "e"))
-        let view = submenu("view")
-        view.addItem(item("toggle sidebar", "sidebar", key: "s", shift: true))
-        view.addItem(item("keep open when switching apps", "keepOpen"))
+        edit.addItem(item("Find a note", "search", key: "f"))
+        let format = submenu("Format")
+        format.addItem(item("Bold", "bold", key: "b"))
+        format.addItem(item("Italic", "italic", key: "i"))
+        format.addItem(item("Highlight", "highlight", key: "m", shift: true))
+        format.addItem(item("Heading", "heading", key: "h", shift: true))
+        format.addItem(item("Bullet list", "bullet", key: "l", shift: true))
+        format.addItem(item("Task list", "task", key: "t", shift: true))
+        format.addItem(item("Link", "link", key: "k"))
+        format.addItem(item("Code", "code", key: "e"))
+        let view = submenu("View")
+        view.addItem(item("Toggle sidebar", "sidebar", key: "s", shift: true))
+        view.addItem(item("Keep open when switching apps", "keepOpen"))
         return main
     }
 }

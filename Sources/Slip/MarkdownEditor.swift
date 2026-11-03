@@ -60,8 +60,8 @@ struct MarkdownEditor: NSViewRepresentable {
         editor.delegate = context.coordinator
         editor.onFocus = onFocus
         editor.onLinkChanged = onLinkChanged
-        editor.setAccessibilityLabel("markdown editor")
-        editor.setAccessibilityHelp("write a note in markdown. changes save automatically.")
+        editor.setAccessibilityLabel("Markdown Editor")
+        editor.setAccessibilityHelp("Write a note in Markdown. Changes save automatically.")
         let length = (text as NSString).length
         editor.setSelectedRange(initialSelection.map { NSIntersectionRange($0, NSRange(location: 0, length: length)) } ?? NSRange(location: length, length: 0))
         SyntaxHighlighter.apply(to: editor)

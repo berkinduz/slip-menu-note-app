@@ -37,7 +37,7 @@ struct QuickCaptureTests {
         #expect(note.displayTitle == "A quick thought")
         #expect(note.exportedMarkdown == "\n# A quick thought\n\nMore details\n")
         #expect(Note(title: "My title", body: "First line").displayTitle == "My title")
-        #expect(Note().displayTitle == "new note")
+        #expect(Note().displayTitle == "New note")
     }
 
     @Test("Slash queries start after whitespace and retain UTF-16 source positions")

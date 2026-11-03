@@ -21,7 +21,7 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.red)
                     .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityLabel("settings error: \(error)")
+                    .accessibilityLabel("Settings error: \(error)")
             }
         }
         .padding(24)
@@ -53,30 +53,30 @@ private struct AppearanceSettings: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Form {
-                Picker("theme", selection: $store.preferences.theme) {
+                Picker("Theme", selection: $store.preferences.theme) {
                     ForEach(AppTheme.allCases) { theme in Text(theme.title).tag(theme) }
                 }
-                Picker("editor font", selection: $store.preferences.fontFamily) {
+                Picker("Editor Font", selection: $store.preferences.fontFamily) {
                     ForEach(families, id: \.self) { family in
-                        Text(family == "System" ? "sf pro text" : family == "System Monospaced" ? "system mono" : family.lowercased()).tag(family)
+                        Text(family == "System" ? "SF Pro Text" : family).tag(family)
                     }
                 }
                 Stepper(value: fontSize, in: 10...28, step: 1) {
-                    Text("font size: \(Int(store.preferences.fontSize)) pt")
+                    Text("Font Size: \(Int(store.preferences.fontSize)) pt")
                 }
                 Stepper(value: $store.preferences.lineHeight,
                         in: (store.preferences.fontSize + 2)...(store.preferences.fontSize * 2.4), step: 1) {
-                    Text("line height: \(Int(store.preferences.lineHeight)) pt")
+                    Text("Line Height: \(Int(store.preferences.lineHeight)) pt")
                 }
-                Toggle("font ligatures", isOn: $store.preferences.fontLigatures)
+                Toggle("Font Ligatures", isOn: $store.preferences.fontLigatures)
             }
             .formStyle(.grouped)
             .scrollDisabled(true)
             .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("sample").font(.caption).foregroundStyle(style.secondary)
-                Text("the quick brown fox.\n0123456789")
+                Text("Sample").font(.caption).foregroundStyle(style.secondary)
+                Text("The quick brown fox.\n0123456789")
                     .font(EditorTypography.swiftUIFont(store.preferences))
                     .lineSpacing(max(0, store.preferences.lineHeight - store.preferences.fontSize - 2))
                     .foregroundStyle(style.text)
@@ -97,11 +97,10 @@ private struct WritingSettings: View {
         @Bindable var store = workspace.settings
         VStack(alignment: .leading, spacing: 16) {
             Form {
-                Toggle("check spelling", isOn: $store.preferences.spellChecking)
-                Toggle("continue lists", isOn: $store.preferences.continueLists)
-                Toggle("slash commands", isOn: $store.preferences.slashCommands)
-                Toggle("keep window open", isOn: $store.preferences.keepOpen)
-                Toggle("show sidebar at launch", isOn: $store.preferences.sidebarAtLaunch)
+                Toggle("Check Spelling", isOn: $store.preferences.spellChecking)
+                Toggle("Continue Lists", isOn: $store.preferences.continueLists)
+                Toggle("Slash Commands", isOn: $store.preferences.slashCommands)
+                Toggle("Keep Window Open", isOn: $store.preferences.keepOpen)
             }
             .formStyle(.grouped)
             .scrollDisabled(true)
@@ -109,7 +108,7 @@ private struct WritingSettings: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("local storage")
+                    Text("Local Storage")
                     Text(workspace.notebook.directory.path)
                         .font(.caption)
                         .foregroundStyle(style.secondary)
@@ -117,11 +116,11 @@ private struct WritingSettings: View {
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button("show folder") { workspace.revealStorage() }
+                Button("Show Folder") { workspace.revealStorage() }
             }
             .padding(.horizontal, 8)
             HStack {
-                Text("open slip")
+                Text("Open Slip")
                 Spacer()
                 Text("⌃⌥N").foregroundStyle(style.secondary)
             }

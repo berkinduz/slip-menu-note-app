@@ -25,7 +25,7 @@ public struct ThemePalette: Equatable, Sendable {
         input: 0x0D0C0C, border: 0x0D0C0C,
         secondaryText: 0xA6A69C, tertiaryText: 0x737C73,
         accent: 0x8BA4B0, selection: 0x223249, rowSelection: 0x393836,
-        hover: 0x282727, popup: 0x223249, popupSelection: 0x2D4F67,
+        hover: 0x282727, popup: 0x282727, popupSelection: 0x393836,
         heading: 0x8BA4B0, italic: 0xC4746E, code: 0x8992A7,
         link: 0x6A9589, quote: 0x737C73
     )

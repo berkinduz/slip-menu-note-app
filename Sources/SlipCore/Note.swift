@@ -5,13 +5,14 @@ public struct Note: Identifiable, Codable, Equatable, Sendable {
     public var title: String
     public var body: String
     public var tags: [String]
+    public var folderID: UUID?
     public var isPinned: Bool
     public let createdAt: Date
     public var updatedAt: Date
     public var deletedAt: Date?
 
     public init(
-        id: UUID = UUID(), title: String = "", body: String = "", tags: [String] = [],
+        id: UUID = UUID(), title: String = "", body: String = "", tags: [String] = [], folderID: UUID? = nil,
         isPinned: Bool = false, createdAt: Date = .now, updatedAt: Date = .now,
         deletedAt: Date? = nil
     ) {
@@ -19,6 +20,7 @@ public struct Note: Identifiable, Codable, Equatable, Sendable {
         self.title = title
         self.body = body
         self.tags = Self.normalizedTags(tags)
+        self.folderID = folderID
         self.isPinned = isPinned
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -32,12 +34,12 @@ public struct Note: Identifiable, Codable, Equatable, Sendable {
             !$0.trimmingCharacters(in: .whitespaces).isEmpty
         }
         let fallback = Self.plainText(firstLine.map(String.init) ?? "")
-        return fallback.isEmpty ? "new note" : String(fallback.prefix(90))
+        return fallback.isEmpty ? "New note" : String(fallback.prefix(90))
     }
 
     public var excerpt: String {
         let plain = Self.plainText(body)
-        return plain.isEmpty ? "a little space for your next thought." : String(plain.prefix(160))
+        return plain.isEmpty ? "A little space for your next thought." : String(plain.prefix(160))
     }
 
     private static func plainText(_ markdown: String) -> String {
@@ -70,26 +72,60 @@ public struct Note: Identifiable, Codable, Equatable, Sendable {
 }
 
 public enum NoteFilter: Hashable, Sendable {
-    case all, pinned, tag(String), trash
+    case all, pinned, folder(UUID), tag(String), trash
 
     public var title: String {
         switch self {
-        case .all: "all notes"
-        case .pinned: "pinned"
+        case .all: "All notes"
+        case .pinned: "Pinned"
+        case .folder: "Folder"
         case .tag(let tag): tag
-        case .trash: "trash"
+        case .trash: "Trash"
         }
     }
 }
 
 public struct NoteLibrary: Codable, Equatable, Sendable {
-    public var version: Int = 2
+    public var version: Int = 3
     public var notes: [Note]
+    public var folders: [NoteFolder]
     public var selectedNoteID: UUID?
 
-    public init(notes: [Note] = [], selectedNoteID: UUID? = nil) {
+    public init(notes: [Note] = [], folders: [NoteFolder] = [], selectedNoteID: UUID? = nil) {
         self.notes = notes
+        self.folders = folders
         self.selectedNoteID = selectedNoteID
+    }
+
+    private enum CodingKeys: String, CodingKey { case version, notes, folders, selectedNoteID }
+
+    public init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        version = try values.decode(Int.self, forKey: .version)
+        notes = try values.decode([Note].self, forKey: .notes)
+        folders = try values.decodeIfPresent([NoteFolder].self, forKey: .folders) ?? []
+        selectedNoteID = try values.decodeIfPresent(UUID.self, forKey: .selectedNoteID)
+    }
+
+    public func folderPath(_ id: UUID) -> String {
+        var components: [String] = []
+        var currentID: UUID? = id
+        while let id = currentID, let folder = folders.first(where: { $0.id == id }) {
+            components.append(folder.name)
+            currentID = folder.parentID
+        }
+        return components.reversed().joined(separator: "/")
+    }
+
+    public func descendantFolderIDs(_ id: UUID) -> Set<UUID> {
+        var descendants: Set<UUID> = [id]
+        var pending = [id]
+        while let parentID = pending.popLast() {
+            for folder in folders where folder.parentID == parentID {
+                if descendants.insert(folder.id).inserted { pending.append(folder.id) }
+            }
+        }
+        return descendants
     }
 
     public var tags: [String] {
@@ -109,11 +145,15 @@ public struct NoteLibrary: Codable, Equatable, Sendable {
 
     public func filtered(by filter: NoteFilter, query: String = "") -> [Note] {
         let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let folderIDs: Set<UUID>
+        if case .folder(let id) = filter { folderIDs = descendantFolderIDs(id) }
+        else { folderIDs = [] }
         return notes.filter { note in
             let matchesFilter: Bool
             switch filter {
             case .all: matchesFilter = note.deletedAt == nil
             case .pinned: matchesFilter = note.deletedAt == nil && note.isPinned
+            case .folder: matchesFilter = note.deletedAt == nil && note.folderID.map(folderIDs.contains) == true
             case .tag(let tag):
                 let normalized = Note.normalizedTags([tag]).first ?? ""
                 matchesFilter = note.deletedAt == nil && !normalized.isEmpty && note.allTags.contains { $0 == normalized || $0.hasPrefix(normalized + "/") }

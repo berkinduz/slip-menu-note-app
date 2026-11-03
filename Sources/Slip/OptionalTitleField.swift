@@ -20,13 +20,13 @@ struct OptionalTitleField: NSViewRepresentable {
         field.focusRingType = .none
         field.font = .systemFont(ofSize: 25, weight: .semibold)
         field.textColor = style.textColor
-        field.placeholderString = "title (optional)"
+        field.placeholderString = "Title (optional)"
         field.usesSingleLineMode = true
         field.cell?.isScrollable = true
         field.stringValue = text
         field.isEditable = isEnabled
         field.delegate = context.coordinator
-        field.setAccessibilityLabel("note title (optional)")
+        field.setAccessibilityLabel("Note title (optional)")
         return field
     }
 

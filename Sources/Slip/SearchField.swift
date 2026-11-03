@@ -17,14 +17,14 @@ struct SearchField: NSViewRepresentable {
         field.focusRingType = .none
         field.font = .systemFont(ofSize: 12)
         field.textColor = style.textColor
-        field.placeholderString = "search"
+        field.placeholderString = "Search"
         field.usesSingleLineMode = true
         field.cell?.isScrollable = true
         field.stringValue = text
         field.delegate = context.coordinator
         field.onFocus = onFocus
-        field.setAccessibilityLabel("search notes")
-        field.setAccessibilityHelp("search notes or #tags (⌘f)")
+        field.setAccessibilityLabel("Search Notes")
+        field.setAccessibilityHelp("Search notes or #tags (⌘F)")
         return field
     }
 

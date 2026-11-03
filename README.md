@@ -1,70 +1,88 @@
-# slip
+# <img src="docs/images/icon.png" width="36" height="36" alt=""> Slip — notes in your Mac menu bar
 
-<img src="docs/images/icon.png" width="88" height="88" alt="slip icon">
+**Capture a thought. Check off the next thing. Get back to work.**
 
-Quick notes and small to-dos, one shortcut away. Catch a thought or jot down your next action without leaving what you're doing.
+Slip is a free, open-source **macOS menu bar app for quick notes, Markdown, and lightweight to-do lists**. Open it with a global keyboard shortcut, write without a title, and tuck it away when you're done. Your notes stay on your Mac.
 
-![slip writing panel on a macOS desktop](docs/images/hero.png)
+[**Download for macOS**](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [How to use](#how-to-use) · [Keyboard shortcuts](#keyboard-shortcuts) · [Contribute](CONTRIBUTING.md)
 
-## Install
+![Slip’s dark Markdown note panel opened beneath its selected Mac menu bar icon, with a website launch checklist and highlighted text](docs/images/hero.png)
 
-slip 0.1.0 requires **macOS 14 or later on Apple Silicon**.
+## Quick install
 
-1. Download `Slip-v0.1.0-macos-arm64.zip` from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
-2. Unzip it and move `Slip.app` to Applications.
-3. Open slip. Its icon appears in the menu bar; it does not add an icon to the Dock.
+Requires **macOS 14 or later on Apple Silicon**. No account or subscription.
 
-The release is ad hoc signed and is **not notarized**, so macOS may show a security warning on first launch. See Apple's guidance on [opening an app from an unidentified developer](https://support.apple.com/en-us/102445).
+1. Download **[Slip-v0.2.0-macos-arm64.zip](https://github.com/berkinduz/slip-menu-note-app/releases/download/v0.2.0/Slip-v0.2.0-macos-arm64.zip)** from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
+2. Unzip it and move **Slip.app** to **Applications**.
+3. Open Slip. Look for the paper-and-pencil icon in your menu bar.
+
+The release is ad hoc signed and **not notarized**. macOS may show a warning on first launch; see Apple's [opening-app guidance](https://support.apple.com/en-us/102445). Each release includes a SHA-256 checksum.
 
 ## How to use
 
-Click the menu bar icon or press **Control–Option–N** to open slip. Start typing: a title is optional, and an untitled note uses its first content line in the list. Press **Escape** to dismiss a menu or hide the panel. Notes save locally as you work.
+- **Open and capture:** click the menu bar icon or press **Control–Option–N**. Start writing immediately; a title is optional. Untitled notes use their first content line in the list.
+- **Keep track of work:** type `/task` to start a checklist. Click the clear task boxes to check an item off. Return continues the list; Return on an empty item ends it.
+- **Stay with a task:** click the **pin in the header** to keep the panel open when switching apps. Click it again to return to quick capture behavior.
+- **Make another note:** use the **new-note icon at the top right** or **Command–N**.
+- **Return to work:** press **Escape** to dismiss a menu or hide the panel. Notes save automatically, and the sidebar remembers whether you left it open.
 
-Write and read in the same editor. Completed Markdown formatting markers disappear while the formatting stays visible; unfinished syntax remains visible as you type. The stored note remains Markdown. slip supports headings, bold, italic, strikethrough, highlight (`==text==`), inline code and code blocks, links, lists and tasks, quotes, and dividers.
+Slip works well for meeting follow-ups, a short daily to-do list, a launch checklist, and ideas you want to catch while working in another app.
 
-Use `/task` to start a to-do list. Click a checkbox to complete or reopen an action; Return continues the list, and Return again on an empty item ends it.
+## Markdown that stays readable
 
-Select text and press **Command–K** to add a link using its visible text and URL. Ordinary copy takes the visible text. To copy the source, choose **more → export → copy markdown**; use **markdown file** to export a note as a file.
+Write and read in the same editor. Completed formatting markers disappear while the formatting remains visible. Unfinished syntax stays visible as you type; the stored note remains Markdown.
 
-Type `/` for quick commands, including highlight. Use the arrow keys and Return or Tab to choose, or Escape to dismiss the menu.
+- Headings, **bold**, *italic*, strikethrough, and `==highlight==`.
+- Clickable task lists, bullet lists, numbered lists, and quotes.
+- Inline code, fenced code blocks, links, and dividers.
+- A theme-matched **`/` command menu**, plus familiar formatting shortcuts.
 
-## Organize with tags
+Select text and press **Command–K** to add a link. Ordinary copy takes the visible text. Choose **More → Export → Copy Markdown** for the source, or **Markdown file…** to export a note.
 
-![slip with its tags and notes sidebar open](docs/images/organized.png)
+## Folders for structure, tags for connections
 
-Use the slim tag footer to add or remove a note’s tags, or choose **more → tags**. Enter a name such as `work/ideas` or `meeting notes`, and choose an existing suggestion if you like. Tags are stored as metadata; typing a hashtag in the note does not add one.
+![Slip’s sidebar with independent Work and Website folders, a separate note list, and a quiet Tags entry](docs/images/organized.png)
 
-Open the sidebar with **Shift–Command–S**. Tag groups appear under search, with a separate note list below. Expand a parent tag to see its children. Select a tag to filter notes, including notes in its nested children. Search supports partial matches: `#ide` can find `work/ideas`. Combine tag terms such as `#work #meeting notes#` to find notes matching both. Right-click a tag to choose an optional monochrome icon or reset it. Tags are the organizing system; there are no separate folders.
+Give each note a home in a **folder or nested folder**. Use the folder-plus button to create a folder, or right-click a folder to add a subfolder, rename it, or move it. Create a note while a folder is selected to put it there automatically. Use **Move to folder** in a note’s menu to reorganize it.
 
-The **more** menu also offers an optional title, pinning, export, note filters, and Trash. Restore notes from Trash when needed.
+**Tags work independently of folders.** Add them manually from the slim footer under a note; suggestions help reuse existing tags. Use the small **Tags** entry at the bottom of the sidebar to filter across folders. A tag never creates a folder, and typing `#words` in the note does not add tags.
 
-## Shortcuts
+Search with **Command–F** to find titles and content, or use `#launch` for tag search. Partial tag matches work too. Combine terms such as `#work #meeting notes#` to match both tags. Tag names stay lowercase; your note text, titles, and folder names keep the case you enter.
+
+Removing a folder keeps its notes in the parent folder. Notes moved to **Trash** can be restored. Pin important notes to the top of the list through their menu; the header pin separately controls whether the panel stays open.
+
+## Keyboard shortcuts
 
 | Action | Shortcut |
 | --- | --- |
-| Open or hide slip | Control–Option–N |
-| New note / search | Command–N / Command–F |
+| Open or hide Slip | Control–Option–N |
+| New note | Command–N |
+| New folder | Shift–Command–N |
+| Search notes | Command–F |
 | Bold / italic / inline code | Command–B / Command–I / Command–E |
-| Add or edit link / highlight | Command–K / Shift–Command–M |
-| Heading / bullet list / task | Shift–Command–H / L / T |
-| Show or hide sidebar | Shift–Command–S |
+| Add or edit a link / highlight | Command–K / Shift–Command–M |
+| Heading / bullet list / task list | Shift–Command–H / L / T |
+| Show or hide the sidebar | Shift–Command–S |
 | Settings | Command–Comma |
-| Dismiss or hide | Escape |
+| Dismiss a menu or hide the panel | Escape |
 
-## Settings and storage
+## Make it feel at home
 
-<details>
-<summary>See appearance settings</summary>
+Slip is a native **SwiftUI and AppKit** macOS app. The default appearance pairs **Kanagawa Dragon** with **SF Pro Text**. Settings include System, Light, and Dark themes, your installed fonts, font size, line height, ligatures, spell checking, and list continuation.
 
-<img src="docs/images/settings.png" width="520" alt="slip appearance settings">
+## Local by default
 
-</details>
+Slip works offline. It needs no account or cloud service. Notes, folders, and tags are stored locally in `~/Library/Application Support/Slip/`; use **Show folder** in Settings to find your data. Export notes as Markdown when you want to take them elsewhere.
 
-Open **settings** with Command–Comma. The appearance pane lets you choose the theme, editor font, font size, line height, and ligatures. The default is the VS Code Kanagawa Dragon palette with the system font (SF Pro Text) at 14 pt and a 20 pt line height. System, Light, and Dark themes are also available. Existing font choices remain unchanged.
+**Cloud sync is not included.** The downloadable build targets Apple Silicon; an Intel release is not currently provided.
 
-The writing pane covers spell checking, list continuation, slash commands, keeping the panel open, and showing the sidebar at launch. Use **show folder** there to find your local notes and preferences. slip needs no account or cloud service.
+## Contributing
 
-## Build from source
+Bug reports, thoughtful UI improvements, and code contributions are welcome. The goal is a fast, quiet menu bar notepad that makes small actions easy to capture and organize.
+
+Read **[CONTRIBUTING.md](CONTRIBUTING.md)** for setup and development notes, [report a bug](https://github.com/berkinduz/slip-menu-note-app/issues), or open a pull request. If Slip fits your day, sharing it helps other people find it.
+
+### Build from source
 
 Install Xcode 16 or later with Swift 6, then run:
 
@@ -73,8 +91,8 @@ Install Xcode 16 or later with Swift 6, then run:
 swift test
 ```
 
-The build script creates `Slip.app` next to the project directory and signs it ad hoc. It does not notarize or launch the app. See [CONTRIBUTING.md](CONTRIBUTING.md) for development notes.
+The script creates `Slip.app` next to the project directory and signs it ad hoc. It does not notarize or launch the app.
 
 ## License
 
-slip is available under the [MIT License](LICENSE). The Kanagawa Dragon palette's attribution and license are included in [third-party notices](Resources/THIRD-PARTY-NOTICES.txt).
+Slip is available under the **[MIT License](LICENSE)**. Kanagawa Dragon attribution is included in [third-party notices](Resources/THIRD-PARTY-NOTICES.txt). macOS interface elements and the Sonoma wallpaper shown in the promotional images belong to Apple.

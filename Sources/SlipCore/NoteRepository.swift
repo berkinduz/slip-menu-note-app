@@ -10,7 +10,7 @@ public struct NoteRepository: Sendable {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
         let decoder = JSONDecoder()
         let library = try decoder.decode(NoteLibrary.self, from: Data(contentsOf: fileURL))
-        guard library.version == 1 || library.version == 2 else { throw RepositoryError.unsupportedVersion(library.version) }
+        guard (1...3).contains(library.version) else { throw RepositoryError.unsupportedVersion(library.version) }
         return library
     }
 

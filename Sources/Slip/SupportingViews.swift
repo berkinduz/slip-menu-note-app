@@ -19,18 +19,18 @@ struct TagEditorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("tags").font(.system(size: 14, weight: .semibold))
+                Text("Tags").font(.system(size: 14, weight: .semibold))
                 Spacer()
-                Button("done") { addDraft(); workspace.showTags = false }
+                Button("Done") { addDraft(); workspace.showTags = false }
                     .buttonStyle(.plain).font(.system(size: 12, weight: .medium)).foregroundStyle(style.accent)
             }
             HStack(spacing: 7) {
                 Image(systemName: "number").foregroundStyle(style.secondary)
-                TextField("add a tag…", text: $draft).textFieldStyle(.plain)
+                TextField("Add a tag…", text: $draft).textFieldStyle(.plain)
                     .focused($tagFocused).onSubmit { addDraft() }
                 Button { addDraft() } label: { Image(systemName: "return").foregroundStyle(style.secondary) }
                     .buttonStyle(.plain).disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .accessibilityLabel("add tag")
+                    .accessibilityLabel("Add Tag")
             }
             .font(.system(size: 12)).padding(9)
             .background(style.text.opacity(0.04), in: RoundedRectangle(cornerRadius: 6))
@@ -42,7 +42,7 @@ struct TagEditorView: View {
                             HStack {
                                 TagPill(tag: tag)
                                 Spacer()
-                                IconButton(symbol: "xmark", label: "remove \(tag) tag", size: 24) {
+                                IconButton(symbol: "xmark", label: "Remove \(tag) tag", size: 24) {
                                     workspace.notebook.updateNote(noteID, tags: note.tags.filter { $0 != tag })
                                 }
                             }
@@ -91,45 +91,45 @@ struct MarkdownGuideView: View {
             HStack(spacing: 12) {
                 SlipMark(size: 35)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("keyboard shortcuts").font(.system(size: 19, weight: .semibold)).tracking(-0.5)
+                    Text("Keyboard Shortcuts").font(.system(size: 19, weight: .semibold)).tracking(-0.5)
                 }
                 Spacer()
-                IconButton(symbol: "xmark", label: "close guide") { dismiss() }
+                IconButton(symbol: "xmark", label: "Close Guide") { dismiss() }
             }.padding(24)
             Hairline()
             ScrollView {
                 VStack(alignment: .leading, spacing: 19) {
                     VStack(spacing: 11) {
-                        shortcut("quick commands", "/")
-                        shortcut("open or hide slip", "⌃⌥N")
-                        shortcut("new note", "⌘N")
-                        shortcut("find a note", "⌘F")
-                        shortcut("settings", "⌘,")
-                        shortcut("show / hide sidebar", "⇧⌘S")
-                        shortcut("close and save", "esc")
+                        shortcut("Quick Commands", "/")
+                        shortcut("Open or Hide Slip", "⌃⌥N")
+                        shortcut("New Note", "⌘N")
+                        shortcut("Find a Note", "⌘F")
+                        shortcut("Settings", "⌘,")
+                        shortcut("Show / Hide Sidebar", "⇧⌘S")
+                        shortcut("Close and Save", "Esc")
                     }
                     Hairline()
-                    Text("a little markdown").font(.system(size: 14, weight: .semibold))
+                    Text("A Little Markdown").font(.system(size: 14, weight: .semibold))
                     VStack(spacing: 11) {
-                        syntax("# A heading", "headings", "⌘⇧H")
-                        syntax("**bold**", "bold", "⌘B")
-                        syntax("_italic_", "italic", "⌘I")
-                        syntax("==highlight==", "highlight", "⌘⇧M")
-                        syntax("- A list item", "bullet list", "⌘⇧L")
-                        syntax("- [ ] A task", "task list", "⌘⇧T")
-                        syntax("[text](url)", "link", "⌘K")
-                        syntax("`code`", "inline code", "⌘E")
+                        syntax("# A heading", "Headings", "⌘⇧H")
+                        syntax("**bold**", "Bold", "⌘B")
+                        syntax("_italic_", "Italic", "⌘I")
+                        syntax("==highlight==", "Highlight", "⌘⇧M")
+                        syntax("- A list item", "Bullet List", "⌘⇧L")
+                        syntax("- [ ] A task", "Task List", "⌘⇧T")
+                        syntax("[text](url)", "Link", "⌘K")
+                        syntax("`code`", "Inline Code", "⌘E")
                     }
-                    Text("type / to insert a heading, list, task, code block, quote, divider, or link. keep typing to filter; use ↑↓ and return to choose. esc dismisses the menu. return continues a list; return again on an empty item ends it.")
+                    Text("Type / to insert a heading, list, task, code block, quote, divider, or link. Keep typing to filter; use ↑↓ and Return to choose. Esc dismisses the menu. Return continues a list; Return again on an empty item ends it.")
                         .font(.system(size: 11)).lineSpacing(4).foregroundStyle(style.secondary)
                 }.padding(24)
             }
             Hairline()
             HStack {
-                Label("your notes stay on this mac.", systemImage: "internaldrive")
+                Label("Your notes stay on this Mac.", systemImage: "internaldrive")
                     .font(.system(size: 11)).foregroundStyle(style.secondary)
                 Spacer()
-                Button("got it") { dismiss() }.keyboardShortcut(.defaultAction)
+                Button("Got It") { dismiss() }.keyboardShortcut(.defaultAction)
             }.padding(.horizontal, 24).padding(.vertical, 15)
         }
         .frame(width: 465, height: 560)

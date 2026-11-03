@@ -6,10 +6,10 @@ public enum AppTheme: String, Codable, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .kanagawaDragon: "kanagawa dragon"
-        case .system: "system"
-        case .light: "light"
-        case .dark: "dark"
+        case .kanagawaDragon: "Kanagawa Dragon"
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
         }
     }
 }
@@ -63,7 +63,7 @@ public final class PreferencesStore {
         preferences = AppPreferences()
         if FileManager.default.fileExists(atPath: fileURL.path) {
             do { preferences = try JSONDecoder().decode(AppPreferences.self, from: Data(contentsOf: fileURL)) }
-            catch { errorMessage = "couldn’t read settings. defaults are shown. \(error.localizedDescription)" }
+            catch { errorMessage = "Couldn’t read settings. Defaults are shown. \(error.localizedDescription)" }
         }
     }
 
@@ -74,6 +74,6 @@ public final class PreferencesStore {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(preferences).write(to: fileURL, options: .atomic)
             errorMessage = nil
-        } catch { errorMessage = "couldn’t save settings. \(error.localizedDescription)" }
+        } catch { errorMessage = "Couldn’t save settings. \(error.localizedDescription)" }
     }
 }
