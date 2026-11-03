@@ -1,6 +1,7 @@
 <div align="center">
 
-<img src="docs/images/icon.png" width="36" height="36" alt="slip: macos menu bar note taking app" width="100"> 
+<img src="docs/images/icon.png" alt="slip: macos menu bar note taking app" width="100px"> 
+
 # Slip — notes in your Mac menu bar
 
 **Capture a thought. Check off the next thing. Get back to work.**
@@ -10,6 +11,8 @@ Slip is a free, open-source **macOS menu bar app for quick notes, Markdown, and 
 [**Download for macOS**](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [How to use](#how-to-use) · [Keyboard shortcuts](#keyboard-shortcuts) · [Contribute](CONTRIBUTING.md)
 
 ![Slip opened from the Mac menu bar in Kanagawa Dragon, showing readable Markdown, clear task boxes, and highlighted text](docs/images/hero.png)
+
+</div>
 
 ## Quick install
 
