@@ -23,13 +23,14 @@ struct MarkdownEditor: NSViewRepresentable {
         scroll.borderType = .noBorder
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
+        let viewportWidth = scroll.contentSize.width
 
         let storage = NSTextStorage()
         let layout = MarkdownGlyphLayout()
-        let container = NSTextContainer(containerSize: NSSize(width: 450, height: CGFloat.greatestFiniteMagnitude))
+        let container = NSTextContainer(containerSize: NSSize(width: viewportWidth, height: CGFloat.greatestFiniteMagnitude))
         storage.addLayoutManager(layout)
         layout.addTextContainer(container)
-        let editor = SourceTextView(frame: NSRect(x: 0, y: 0, width: 450, height: 300), textContainer: container)
+        let editor = SourceTextView(frame: NSRect(x: 0, y: 0, width: viewportWidth, height: 300), textContainer: container)
         editor.isRichText = false
         editor.allowsUndo = true
         editor.isEditable = true
@@ -56,7 +57,7 @@ struct MarkdownEditor: NSViewRepresentable {
         editor.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         editor.textContainerInset = NSSize(width: 23, height: 14)
         editor.textContainer?.widthTracksTextView = true
-        editor.textContainer?.containerSize = NSSize(width: 450, height: CGFloat.greatestFiniteMagnitude)
+        editor.textContainer?.containerSize = NSSize(width: viewportWidth, height: CGFloat.greatestFiniteMagnitude)
         editor.string = text
         editor.delegate = context.coordinator
         editor.onFocus = onFocus
