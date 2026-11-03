@@ -108,7 +108,12 @@ struct NotebookTests {
         let notebook = Notebook(repository: NoteRepository(directory: folder))
         let note = notebook.createNote()
         notebook.updateNote(note.id, body: "Remember this")
-        try await Task.sleep(for: .milliseconds(500))
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(3))
+        while notebook.saveState == .saving, clock.now < deadline {
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        #expect(notebook.saveState == .saved)
         #expect(try NoteRepository(directory: folder).load()?.notes.first?.body == "Remember this")
     }
 
