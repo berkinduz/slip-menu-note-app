@@ -1,4 +1,7 @@
-# <img src="docs/images/icon.png" width="36" height="36" alt=""> Slip — notes in your Mac menu bar
+<div align="center">
+
+<img src="docs/images/icon.png" width="36" height="36" alt="slip: macos menu bar note taking app" width="100"> 
+# Slip — notes in your Mac menu bar
 
 **Capture a thought. Check off the next thing. Get back to work.**
 
