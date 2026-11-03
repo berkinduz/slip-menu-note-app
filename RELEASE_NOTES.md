@@ -1,8 +1,8 @@
 Quick notes, readable Markdown, and small to-dos in your Mac menu bar.
 
-- Install with a DMG: open it and drag Slip to Applications. A ZIP remains available as an alternative.
-- Keep note content within the editor’s width while retaining normal vertical scrolling.
-- Find the app version, author, source code, and support links in Settings → About.
+- Recognize Slip by its new notebook mark: a quick note opening beneath an active menu bar point.
+- Use the same clear silhouette in the application icon, menu bar, About screen, and installer.
+- Enjoy a sharp, single-color menu bar symbol in light and dark appearances.
 
 Download the DMG, open it, and drag **Slip** to **Applications** in the window that appears. Open Slip from Applications, then eject the disk image. See the [README](https://github.com/berkinduz/slip-menu-note-app#quick-install) for usage and shortcuts.
 

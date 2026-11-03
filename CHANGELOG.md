@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 — 2026-11-03
+
+- Introduce a notebook mark connecting the menu bar with a quick note, shared by the application and menu bar icons.
+- Draw the menu bar symbol as a resolution-independent template for clear light and dark appearances.
+- Update the About and installer icons, README branding, and promotional menu bar images.
+
 ## 0.2.1 — 2026-11-03
 
 - Add a drag-to-Applications DMG installer, with ZIP downloads available as an alternative.

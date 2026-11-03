@@ -14,9 +14,9 @@ func drawIcon() {
     background.fill()
     NSGraphicsContext.restoreGraphicsState()
     NSGradient(starting: NSColor(srgbRed: 0.19, green: 0.19, blue: 0.17, alpha: 1), ending: NSColor(srgbRed: 0.075, green: 0.070, blue: 0.070, alpha: 1))!.draw(in: background, angle: -75)
-    SlipMarkImage.draw(in: NSRect(x: 237, y: 228, width: 550, height: 550),
-                       ink: NSColor(srgbRed: 0.89, green: 0.90, blue: 0.86, alpha: 1),
-                       accent: NSColor(srgbRed: 0.77, green: 0.70, blue: 0.54, alpha: 1))
+    SlipMarkImage.draw(in: NSRect(x: 182, y: 182, width: 660, height: 660),
+                       ink: NSColor(srgbRed: 0.91, green: 0.90, blue: 0.86, alpha: 1),
+                       accent: NSColor(srgbRed: 0.77, green: 0.69, blue: 0.52, alpha: 1))
 }
 
 for points in [16, 32, 128, 256, 512] {

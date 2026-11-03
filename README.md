@@ -12,9 +12,9 @@ Slip is a free, open-source **macOS menu bar app for quick notes, Markdown, and 
 
 Requires **macOS 14 or later on Apple Silicon**. No account or subscription.
 
-1. Download **[Slip-v0.2.1-macos-arm64.dmg](https://github.com/berkinduz/slip-menu-note-app/releases/download/v0.2.1/Slip-v0.2.1-macos-arm64.dmg)** from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
+1. Download **[Slip-v0.2.2-macos-arm64.dmg](https://github.com/berkinduz/slip-menu-note-app/releases/download/v0.2.2/Slip-v0.2.2-macos-arm64.dmg)** from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
 2. Open the DMG and drag **Slip** to **Applications** in the window that appears.
-3. Open Slip from Applications, then eject the disk image. Look for the paper-and-pencil icon in your menu bar.
+3. Open Slip from Applications, then eject the disk image. Look for Slip’s notebook icon in your menu bar.
 
 Prefer an archive? A ZIP is also available in the release assets.
 
