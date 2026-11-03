@@ -47,8 +47,8 @@ struct ContentView: View {
             .frame(minWidth: 320, maxWidth: .infinity, maxHeight: .infinity)
             .background(style.canvas)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 13))
-        .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(style.line, lineWidth: 0.7))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(style.line.opacity(0.7), lineWidth: 0.5))
         .overlay(alignment: .bottom) {
             if let message = workspace.transientMessage {
                 Text(message).font(.system(size: 11)).foregroundStyle(style.text)
@@ -80,6 +80,7 @@ struct ContentView: View {
 private struct NoteDetailView: View {
     @Environment(\.slipStyle) private var style
     @Bindable var workspace: Workspace
+    @Environment(\.editorPreferences) private var preferences
     let note: Note
     @State private var isEditingTitle = false
 
@@ -96,7 +97,7 @@ private struct NoteDetailView: View {
                     Button("Restore") { workspace.restore(note.id) }.foregroundStyle(style.accent)
                 }
                 .font(.system(size: 11)).foregroundStyle(style.secondary)
-                .padding(.horizontal, 28).padding(.vertical, 8)
+                .padding(.horizontal, preferences.editorPadding).padding(.vertical, 8)
             }
             if !note.title.isEmpty || isEditingTitle {
                 OptionalTitleField(
@@ -112,7 +113,7 @@ private struct NoteDetailView: View {
                     onEndEditing: { isEditingTitle = false }
                 )
                 .disabled(note.deletedAt != nil)
-                .frame(height: 32).padding(.horizontal, 28).padding(.top, 10).padding(.bottom, 9)
+                .frame(height: 32).padding(.horizontal, preferences.editorPadding).padding(.top, 10).padding(.bottom, 9)
             }
 
             ZStack(alignment: .topLeading) {
@@ -127,30 +128,14 @@ private struct NoteDetailView: View {
                     onLinkChanged: { workspace.isEditingLink = $0 }
                 )
                 if note.body.isEmpty && note.deletedAt == nil {
-                    Text("Write a note…").font(.system(size: 14)).foregroundStyle(style.tertiary)
-                        .padding(.leading, 28).padding(.top, 14)
+                    Text("Write a note…").font(EditorTypography.swiftUIFont(preferences)).foregroundStyle(style.tertiary)
+                        .padding(.leading, preferences.editorPadding).padding(.top, 14)
                         .allowsHitTesting(false).accessibilityHidden(true)
                 }
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Button { workspace.showTags = true } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "number").font(.system(size: 9))
-                    Text(note.allTags.isEmpty ? "Add tag" : note.allTags.joined(separator: "  ·  "))
-                        .font(.system(size: 10)).lineLimit(1).truncationMode(.tail)
-                    Spacer(minLength: 0)
-                }
-                .foregroundStyle(style.secondary)
-                .padding(.horizontal, 27).frame(height: 28)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain).disabled(note.deletedAt != nil)
-            .accessibilityLabel(note.allTags.isEmpty ? "Add tags" : "Edit tags: \(note.allTags.joined(separator: ", "))")
-            .help("Edit tags")
-            .overlay(alignment: .top) { Hairline().padding(.horizontal, 24) }
-            .popover(isPresented: $workspace.showTags, arrowEdge: .bottom) {
-                TagEditorView(workspace: workspace, noteID: note.id)
-            }
+            NoteFooter(workspace: workspace, note: note)
+
         }
         .onChange(of: workspace.titleRequest) {
             workspace.inputFocus = .title
@@ -186,12 +171,9 @@ struct NoteMenu: View {
             Menu("Notes") {
                 Button("All notes") { workspace.query = ""; workspace.changeFilter(.all); showSidebar() }
                 Button("Pinned") { workspace.query = ""; workspace.changeFilter(.pinned); showSidebar() }
-                if !workspace.notebook.library.tags.isEmpty {
-                    Menu("Tags") {
-                        ForEach(workspace.notebook.library.tags, id: \.self) { tag in
-                            Button(tag) { workspace.query = ""; workspace.changeFilter(.tag(tag)); showSidebar() }
-                        }
-                    }
+                Button("Browse tags…") {
+                    showSidebar()
+                    workspace.showTagBrowser = true
                 }
                 Divider()
                 Button("Trash") { workspace.query = ""; workspace.changeFilter(.trash); showSidebar() }

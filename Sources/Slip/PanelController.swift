@@ -36,11 +36,11 @@ import Observation
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.minSize = NSSize(width: 380, height: 420)
+        panel.minSize = NSSize(width: workspace.sidebarVisible ? 632 : 380, height: 420)
         panel.maxSize = NSSize(width: 1300, height: 1100)
         panel.contentView = NSHostingView(rootView: ThemedRoot(settings: workspace.settings, content: ContentView(workspace: workspace)))
         panel.contentView?.wantsLayer = true
-        panel.contentView?.layer?.cornerRadius = 13
+        panel.contentView?.layer?.cornerRadius = 18
         panel.contentView?.layer?.masksToBounds = true
         panel.setAccessibilityLabel("Slip quick notes")
 
@@ -149,7 +149,7 @@ import Observation
 
     private func dismissIfAllowed() {
         guard panel.isVisible, !workspace.keepOpen, panel.attachedSheet == nil,
-              !workspace.showTags, !workspace.showTagBrowser, !workspace.isEditingLink, !workspace.showGuide, !workspace.confirmEmptyTrash,
+              !workspace.showTags, !workspace.showTagBrowser, !workspace.showFolderBrowser, !workspace.isEditingLink, !workspace.showGuide, !workspace.confirmEmptyTrash,
               workspace.operationError == nil else { return }
         dismiss()
     }
@@ -184,6 +184,7 @@ import Observation
             if let editor = panel.firstResponder as? SourceTextView, editor.dismissSlashCommands() { return nil }
             if workspace.showTags { workspace.showTags = false }
             else if workspace.showTagBrowser { workspace.showTagBrowser = false }
+            else if workspace.showFolderBrowser { workspace.showFolderBrowser = false }
             else if workspace.showGuide { workspace.showGuide = false }
             else { dismiss() }
             return nil

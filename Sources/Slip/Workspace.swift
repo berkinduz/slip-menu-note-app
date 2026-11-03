@@ -19,6 +19,7 @@ final class Workspace {
     var showGuide = false
     var showTags = false
     var showTagBrowser = false
+    var showFolderBrowser = false
     var folderPrompt: FolderPrompt?
     var folderToRemove: UUID?
     var isEditingLink = false
@@ -48,7 +49,7 @@ final class Workspace {
 
     var visibleNotes: [Note] {
         let search = NoteSearchQuery(query)
-        return notebook.library.filtered(by: filter, query: search.text).filter(search.matches)
+        return notebook.library.filtered(by: filter, query: search.text, sort: settings.preferences.noteSort).filter(search.matches)
     }
 
     var currentFolderID: UUID? {
@@ -63,6 +64,22 @@ final class Workspace {
 
     func openSettings() { onSettings?() }
 
+    func renameTag(_ tag: String, to value: String) {
+        guard let name = Note.normalizedTags([value]).first, name != tag, notebook.canWrite else { return }
+        notebook.renameTag(tag, to: name)
+        var icons = settings.preferences.tagIcons
+        if let icon = icons.removeValue(forKey: tag), icons[name] == nil { icons[name] = icon }
+        settings.preferences.tagIcons = icons
+        if filter == .tag(tag) { changeFilter(.tag(name)) }
+    }
+
+    func removeTag(_ tag: String) {
+        guard notebook.canWrite else { return }
+        notebook.removeTag(tag)
+        settings.preferences.tagIcons.removeValue(forKey: tag)
+        if filter == .tag(tag) { changeFilter(.all) }
+    }
+
     func editTitle() {
         guard notebook.selectedNote?.deletedAt == nil else { return }
         titleRequest = UUID()
@@ -73,12 +90,22 @@ final class Workspace {
         let tags: [String]
         if case .tag(let tag) = filter { tags = [tag] } else { tags = [] }
         let folderID = currentFolderID
-        if let current = notebook.selectedNote, current.isEmpty, current.deletedAt == nil,
+        let starter = settings.preferences.newNoteStyle.starterText
+        if let current = notebook.selectedNote, current.deletedAt == nil,
+           current.isEmpty || (current.title.isEmpty && current.body == starter),
            current.tags == tags, current.folderID == folderID {
+            if current.body.isEmpty, !starter.isEmpty {
+                notebook.updateNote(current.id, body: starter)
+            }
+            editorSelections[current.id] = NSRange(location: (starter as NSString).length, length: 0)
             query = ""; focusBody()
             return
         }
-        _ = notebook.createNote(tags: tags, folderID: folderID)
+        let note = notebook.createNote(tags: tags, folderID: folderID)
+        if !starter.isEmpty {
+            notebook.updateNote(note.id, body: starter)
+            editorSelections[note.id] = NSRange(location: (starter as NSString).length, length: 0)
+        }
         query = ""
         if filter == .trash || filter == .pinned { filter = .all }
         focusBody()

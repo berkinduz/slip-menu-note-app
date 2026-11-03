@@ -28,7 +28,9 @@ import AppKit
         self.controller = controller
         shortcut = GlobalShortcut { [weak controller] in controller?.toggle() }
         workspace.hotKeyAvailable = shortcut?.isRegistered ?? false
-        DispatchQueue.main.async { controller.show() }
+        if workspace.settings.preferences.showOnLaunch {
+            DispatchQueue.main.async { controller.show() }
+        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

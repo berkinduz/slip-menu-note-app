@@ -38,21 +38,24 @@ public struct Note: Identifiable, Codable, Equatable, Sendable {
     }
 
     public var excerpt: String {
-        let plain = Self.plainText(body)
-        return plain.isEmpty ? "A little space for your next thought." : String(plain.prefix(160))
+        let lines = body.split(whereSeparator: \.isNewline)
+        let content = title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? lines.dropFirst().joined(separator: "\n") : body
+        return String(Self.plainText(content).prefix(160))
     }
 
     private static func plainText(_ markdown: String) -> String {
         markdown
             .replacingOccurrences(of: #"(?m)^\s{0,3}(#{1,6}\s+|>\s*|[-*+]\s+(\[[ xX]\]\s*)?|\d+[.)]\s+)"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\[([^\]]+)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
+            .replacingOccurrences(of: "==", with: "")
             .replacingOccurrences(of: #"[*_`~]"#, with: "", options: .regularExpression)
             .split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 
     public var allTags: [String] { Self.normalizedTags(tags) }
 
-    public var wordCount: Int { body.split(whereSeparator: \.isWhitespace).count }
+    public var wordCount: Int { Self.plainText(body).split(whereSeparator: \.isWhitespace).count }
     public var isEmpty: Bool { title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     public static func normalizedTags(_ values: [String]) -> [String] {
@@ -143,7 +146,7 @@ public struct NoteLibrary: Codable, Equatable, Sendable {
 
     public var tagTree: [TagNode] { TagNode.tree(for: tags) }
 
-    public func filtered(by filter: NoteFilter, query: String = "") -> [Note] {
+    public func filtered(by filter: NoteFilter, query: String = "", sort: NoteSort = .updated) -> [Note] {
         let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let folderIDs: Set<UUID>
         if case .folder(let id) = filter { folderIDs = descendantFolderIDs(id) }
@@ -162,8 +165,12 @@ public struct NoteLibrary: Codable, Equatable, Sendable {
             return matchesFilter && (search.isEmpty || [note.title, note.body, note.allTags.joined(separator: " ")].contains { $0.localizedStandardContains(search) })
         }.sorted { a, b in
             if filter != .trash && a.isPinned != b.isPinned { return a.isPinned }
-            let aDate = filter == .trash ? (a.deletedAt ?? a.updatedAt) : a.updatedAt
-            let bDate = filter == .trash ? (b.deletedAt ?? b.updatedAt) : b.updatedAt
+            if filter != .trash, sort == .title {
+                let comparison = a.displayTitle.localizedStandardCompare(b.displayTitle)
+                if comparison != .orderedSame { return comparison == .orderedAscending }
+            }
+            let aDate = filter == .trash ? (a.deletedAt ?? a.updatedAt) : (sort == .created ? a.createdAt : a.updatedAt)
+            let bDate = filter == .trash ? (b.deletedAt ?? b.updatedAt) : (sort == .created ? b.createdAt : b.updatedAt)
             if aDate != bDate { return aDate > bDate }
             return a.id.uuidString < b.id.uuidString
         }

@@ -124,6 +124,22 @@ public final class Notebook {
         scheduleSave()
     }
 
+    public func renameTag(_ tag: String, to value: String) {
+        guard canWrite, let name = Note.normalizedTags([value]).first, name != tag else { return }
+        for index in library.notes.indices where library.notes[index].tags.contains(tag) {
+            library.notes[index].tags = Note.normalizedTags(library.notes[index].tags.map { $0 == tag ? name : $0 })
+        }
+        scheduleSave()
+    }
+
+    public func removeTag(_ tag: String) {
+        guard canWrite else { return }
+        for index in library.notes.indices {
+            library.notes[index].tags.removeAll { $0 == tag }
+        }
+        scheduleSave()
+    }
+
     public func moveToTrash(_ id: UUID) {
         guard canWrite else { return }
         library.moveToTrash(id)

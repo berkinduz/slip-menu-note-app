@@ -57,7 +57,6 @@ struct AboutSettings: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 32)
         .background(style.canvas, in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(style.line, lineWidth: 1))
-        .frame(maxHeight: .infinity)
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(style.line.opacity(0.5), lineWidth: 0.5))
     }
 }

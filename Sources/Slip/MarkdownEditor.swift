@@ -33,29 +33,29 @@ struct MarkdownEditor: NSViewRepresentable {
         let editor = SourceTextView(frame: NSRect(x: 0, y: 0, width: viewportWidth, height: 300), textContainer: container)
         editor.isRichText = false
         editor.allowsUndo = true
-        editor.isEditable = true
+        editor.isEditable = isActive
         editor.isSelectable = true
         editor.drawsBackground = false
         editor.editorPreferences = preferences
         editor.editorStyle = style
         editor.font = EditorTypography.font(preferences)
         editor.textColor = style.textColor
-        editor.insertionPointColor = style.theme == .kanagawaDragon ? style.textColor : style.accentColor
+        editor.insertionPointColor = style.accentColor
         editor.selectedTextAttributes = [.backgroundColor: style.selectionColor, .foregroundColor: style.textColor]
         editor.linkTextAttributes = [.foregroundColor: style.linkColor, .underlineStyle: NSUnderlineStyle.single.rawValue]
-        editor.usesAdaptiveColorMappingForDarkAppearance = style.theme != .kanagawaDragon
-        editor.isAutomaticQuoteSubstitutionEnabled = false
-        editor.isAutomaticDashSubstitutionEnabled = false
+        editor.usesAdaptiveColorMappingForDarkAppearance = style.theme == .system
+        editor.isAutomaticQuoteSubstitutionEnabled = preferences.smartPunctuation
+        editor.isAutomaticDashSubstitutionEnabled = preferences.smartPunctuation
         editor.isAutomaticTextReplacementEnabled = false
         editor.isAutomaticLinkDetectionEnabled = false
-        editor.isAutomaticSpellingCorrectionEnabled = false
+        editor.isAutomaticSpellingCorrectionEnabled = preferences.autoCorrect
         editor.isContinuousSpellCheckingEnabled = preferences.spellChecking
         editor.isVerticallyResizable = true
         editor.isHorizontallyResizable = false
         editor.autoresizingMask = [.width]
         editor.minSize = .zero
         editor.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-        editor.textContainerInset = NSSize(width: 23, height: 14)
+        editor.textContainerInset = NSSize(width: preferences.editorPadding - 5, height: 14)
         editor.textContainer?.widthTracksTextView = true
         editor.textContainer?.containerSize = NSSize(width: viewportWidth, height: CGFloat.greatestFiniteMagnitude)
         editor.string = text
@@ -65,7 +65,7 @@ struct MarkdownEditor: NSViewRepresentable {
         editor.setAccessibilityLabel("Markdown Editor")
         editor.setAccessibilityHelp("Write a note in Markdown. Changes save automatically.")
         let length = (text as NSString).length
-        editor.setSelectedRange(initialSelection.map { NSIntersectionRange($0, NSRange(location: 0, length: length)) } ?? NSRange(location: length, length: 0))
+        editor.setSelectedRange(initialSelection.map { Self.clampedSelection($0, length: length) } ?? NSRange(location: length, length: 0))
         SyntaxHighlighter.apply(to: editor)
         scroll.documentView = editor
         return scroll
@@ -78,11 +78,15 @@ struct MarkdownEditor: NSViewRepresentable {
             editor.editorPreferences = preferences
             editor.editorStyle = style
             editor.isContinuousSpellCheckingEnabled = preferences.spellChecking
+            editor.isAutomaticSpellingCorrectionEnabled = preferences.autoCorrect
+            editor.isAutomaticQuoteSubstitutionEnabled = preferences.smartPunctuation
+            editor.isAutomaticDashSubstitutionEnabled = preferences.smartPunctuation
+            editor.textContainerInset = NSSize(width: preferences.editorPadding - 5, height: 14)
             editor.textColor = style.textColor
-            editor.insertionPointColor = style.theme == .kanagawaDragon ? style.textColor : style.accentColor
+            editor.insertionPointColor = style.accentColor
             editor.selectedTextAttributes = [.backgroundColor: style.selectionColor, .foregroundColor: style.textColor]
             editor.linkTextAttributes = [.foregroundColor: style.linkColor, .underlineStyle: NSUnderlineStyle.single.rawValue]
-            editor.usesAdaptiveColorMappingForDarkAppearance = style.theme != .kanagawaDragon
+            editor.usesAdaptiveColorMappingForDarkAppearance = style.theme == .system
             if !preferences.slashCommands { editor.hideSlashCommands() }
             SyntaxHighlighter.apply(to: editor)
         }
@@ -96,20 +100,30 @@ struct MarkdownEditor: NSViewRepresentable {
             let selection = initialSelection ?? editor.selectedRange()
             context.coordinator.isUpdating = true
             editor.string = text
-            editor.setSelectedRange(NSIntersectionRange(selection, NSRange(location: 0, length: (text as NSString).length)))
+            editor.setSelectedRange(Self.clampedSelection(selection, length: (text as NSString).length))
             SyntaxHighlighter.apply(to: editor)
             context.coordinator.isUpdating = false
         }
         if context.coordinator.lastFocusRequest != focusRequest {
             context.coordinator.lastFocusRequest = focusRequest
             if isActive {
+                let selectionToRestore = initialSelection
                 DispatchQueue.main.async { [weak editor] in
                     guard let editor, editor.isEditable, let window = editor.window, window.isVisible else { return }
                     window.makeFirstResponder(editor)
+                    if let selectionToRestore {
+                        editor.setSelectedRange(Self.clampedSelection(selectionToRestore, length: (editor.string as NSString).length))
+                    }
                     editor.scrollRangeToVisible(editor.selectedRange())
                 }
             }
         }
+    }
+
+    private static func clampedSelection(_ selection: NSRange, length: Int) -> NSRange {
+        // An empty selection at the end is a valid caret, but NSIntersectionRange returns {0, 0} there.
+        let location = min(selection.location, length)
+        return NSRange(location: location, length: min(selection.length, length - location))
     }
 
     @MainActor final class Coordinator: NSObject, NSTextViewDelegate {
@@ -328,6 +342,7 @@ struct MarkdownEditor: NSViewRepresentable {
         paragraph.minimumLineHeight = preferences.lineHeight
         paragraph.maximumLineHeight = preferences.lineHeight
         paragraph.defaultTabInterval = 28
+        paragraph.paragraphSpacing = preferences.paragraphSpacing
         let base: [NSAttributedString.Key: Any] = [
             .font: font, .foregroundColor: colors.textColor, .paragraphStyle: paragraph,
             .ligature: preferences.fontLigatures ? 1 : 0
