@@ -21,3 +21,9 @@ jobs:
         run: ./scripts/build-app.sh "$RUNNER_TEMP/Slip.app"
       - name: verify bundle
         run: codesign --verify --strict "$RUNNER_TEMP/Slip.app"
+      - name: build disk image
+        run: |
+          python3 -m venv "$RUNNER_TEMP/dmg-tools"
+          "$RUNNER_TEMP/dmg-tools/bin/pip" install -r scripts/dmg-requirements.txt
+          SLIP_DMG_PYTHON="$RUNNER_TEMP/dmg-tools/bin/python" ./scripts/build-dmg.sh \
+            "$RUNNER_TEMP/Slip.app" "$RUNNER_TEMP/Slip.dmg"

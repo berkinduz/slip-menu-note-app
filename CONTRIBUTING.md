@@ -19,4 +19,14 @@ Keep changes focused, include tests when they help verify behavior, and describe
 
 ## Releases
 
-Maintainers update the version in `Resources/Info.plist` and the release notes, then push a matching `v` tag such as `v0.2.0`. The release workflow tests and builds on an Apple Silicon macOS runner, signs the app ad hoc, and publishes the ZIP with a SHA-256 checksum. Signing with a Developer ID and notarization are not part of this workflow.
+Maintainers update the version in `Resources/Info.plist` and the release notes, then push a matching `v` tag such as `v0.2.1`. The release workflow tests and builds on an Apple Silicon macOS runner, signs the app and DMG ad hoc, and publishes both the drag-to-Applications DMG and an optional ZIP with SHA-256 checksums. Signing with a Developer ID and notarization are not part of this workflow.
+
+To check the installer locally after building the app:
+
+```sh
+python3 -m venv .build/dmg-tools
+.build/dmg-tools/bin/pip install -r scripts/dmg-requirements.txt
+SLIP_DMG_PYTHON=.build/dmg-tools/bin/python ./scripts/build-dmg.sh
+```
+
+The script creates `Slip.dmg` next to the repository. Its Finder layout is written directly, so packaging does not require a GUI session.

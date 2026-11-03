@@ -10,10 +10,13 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if pane == .appearance {
+            switch pane {
+            case .appearance:
                 AppearanceSettings(store: store)
-            } else {
+            case .writing:
                 WritingSettings(workspace: workspace)
+            case .about:
+                AboutSettings()
             }
             Spacer(minLength: 0)
             if let error = store.errorMessage {

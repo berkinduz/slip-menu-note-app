@@ -6,15 +6,17 @@ Slip is a free, open-source **macOS menu bar app for quick notes, Markdown, and 
 
 [**Download for macOS**](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [How to use](#how-to-use) · [Keyboard shortcuts](#keyboard-shortcuts) · [Contribute](CONTRIBUTING.md)
 
-![Slip’s dark Markdown note panel opened beneath its selected Mac menu bar icon, with a website launch checklist and highlighted text](docs/images/hero.png)
+![Slip opened from the Mac menu bar in Kanagawa Dragon, showing readable Markdown, clear task boxes, and highlighted text](docs/images/hero.png)
 
 ## Quick install
 
 Requires **macOS 14 or later on Apple Silicon**. No account or subscription.
 
-1. Download **[Slip-v0.2.0-macos-arm64.zip](https://github.com/berkinduz/slip-menu-note-app/releases/download/v0.2.0/Slip-v0.2.0-macos-arm64.zip)** from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
-2. Unzip it and move **Slip.app** to **Applications**.
-3. Open Slip. Look for the paper-and-pencil icon in your menu bar.
+1. Download **[Slip-v0.2.1-macos-arm64.dmg](https://github.com/berkinduz/slip-menu-note-app/releases/download/v0.2.1/Slip-v0.2.1-macos-arm64.dmg)** from the [latest release](https://github.com/berkinduz/slip-menu-note-app/releases/latest).
+2. Open the DMG and drag **Slip** to **Applications** in the window that appears.
+3. Open Slip from Applications, then eject the disk image. Look for the paper-and-pencil icon in your menu bar.
+
+Prefer an archive? A ZIP is also available in the release assets.
 
 The release is ad hoc signed and **not notarized**. macOS may show a warning on first launch; see Apple's [opening-app guidance](https://support.apple.com/en-us/102445). Each release includes a SHA-256 checksum.
 
@@ -41,7 +43,7 @@ Select text and press **Command–K** to add a link. Ordinary copy takes the vis
 
 ## Folders for structure, tags for connections
 
-![Slip’s sidebar with independent Work and Website folders, a separate note list, and a quiet Tags entry](docs/images/organized.png)
+![Slip’s welcome note alongside independent folders, a separate note list, and a quiet Tags entry](docs/images/organized.png)
 
 Give each note a home in a **folder or nested folder**. Use the folder-plus button to create a folder, or right-click a folder to add a subfolder, rename it, or move it. Create a note while a folder is selected to put it there automatically. Use **Move to folder** in a note’s menu to reorganize it.
 

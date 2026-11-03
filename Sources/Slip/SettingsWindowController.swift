@@ -2,15 +2,22 @@ import AppKit
 import SwiftUI
 
 enum SettingsPane: String, CaseIterable {
-    case appearance, writing
+    case appearance, writing, about
 
     var title: String {
         switch self {
         case .appearance: "Appearance"
         case .writing: "Writing"
+        case .about: "About"
         }
     }
-    var symbol: String { self == .appearance ? "paintpalette" : "text.alignleft" }
+    var symbol: String {
+        switch self {
+        case .appearance: "paintpalette"
+        case .writing: "text.alignleft"
+        case .about: "info.circle"
+        }
+    }
     var identifier: NSToolbarItem.Identifier { .init("slip.settings.\(rawValue)") }
 }
 

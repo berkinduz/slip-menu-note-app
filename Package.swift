@@ -8,7 +8,8 @@ let package = Package(
     targets: [
         .target(name: "SlipCore"),
         .executableTarget(name: "Slip", dependencies: ["SlipCore"]),
-        .testTarget(name: "SlipCoreTests", dependencies: ["SlipCore"])
+        .testTarget(name: "SlipCoreTests", dependencies: ["SlipCore"]),
+        .testTarget(name: "SlipEditorTests", dependencies: ["Slip", "SlipCore"])
     ],
     swiftLanguageModes: [.v6]
 )

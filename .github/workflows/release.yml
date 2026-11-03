@@ -27,14 +27,19 @@ jobs:
           test "$(lipo -archs "$RUNNER_TEMP/Slip.app/Contents/MacOS/Slip")" = arm64
           codesign --verify --strict "$RUNNER_TEMP/Slip.app"
           mkdir -p dist
+          python3 -m venv "$RUNNER_TEMP/dmg-tools"
+          "$RUNNER_TEMP/dmg-tools/bin/pip" install -r scripts/dmg-requirements.txt
+          SLIP_DMG_PYTHON="$RUNNER_TEMP/dmg-tools/bin/python" ./scripts/build-dmg.sh \
+            "$RUNNER_TEMP/Slip.app" "dist/Slip-$RELEASE_TAG-macos-arm64.dmg"
           ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/Slip.app" "dist/Slip-$RELEASE_TAG-macos-arm64.zip"
           cd dist
-          shasum -a 256 "Slip-$RELEASE_TAG-macos-arm64.zip" > SHA256SUMS.txt
+          shasum -a 256 "Slip-$RELEASE_TAG-macos-arm64.dmg" "Slip-$RELEASE_TAG-macos-arm64.zip" > SHA256SUMS.txt
       - name: publish release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" "dist/Slip-$RELEASE_TAG-macos-arm64.zip" dist/SHA256SUMS.txt \
-            --repo "$GITHUB_REPOSITORY" --verify-tag --title "slip $RELEASE_TAG" \
+          gh release create "$RELEASE_TAG" "dist/Slip-$RELEASE_TAG-macos-arm64.dmg" \
+            "dist/Slip-$RELEASE_TAG-macos-arm64.zip" dist/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --title "Slip $RELEASE_TAG" \
             --notes-file RELEASE_NOTES.md --latest

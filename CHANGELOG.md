@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 — 2026-11-03
+
+- Add a drag-to-Applications DMG installer, with ZIP downloads available as an alternative.
+- Keep the note editor on the vertical scrolling axis while preserving wrapping and vertical scrolling.
+- Add About to Settings with the app version, author, source code, and support links.
+- Refresh the README images with a readable welcome note and Markdown examples.
+
 ## 0.2.0 — 2026-11-03
 
 - Add independent folders and nested folders, with note moves and folder reorganization.

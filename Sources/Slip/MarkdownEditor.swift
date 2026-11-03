@@ -18,6 +18,7 @@ struct MarkdownEditor: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSScrollView {
         let scroll = NSScrollView()
+        scroll.contentView = EditorClipView()
         scroll.drawsBackground = false
         scroll.borderType = .noBorder
         scroll.hasVerticalScroller = true
@@ -137,6 +138,19 @@ struct MarkdownEditor: NSViewRepresentable {
                   editor.presentation.source == editor.string else { return newSelectedCharRange }
             return editor.presentation.adjustedSelection(from: oldSelectedCharRange, to: newSelectedCharRange)
         }
+    }
+}
+
+@MainActor private final class EditorClipView: NSClipView {
+    // Notes wrap to the viewport; both gestures and caret scrolling stay vertical.
+    override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
+        var bounds = super.constrainBoundsRect(proposedBounds)
+        bounds.origin.x = 0
+        return bounds
+    }
+
+    override func scroll(to newOrigin: NSPoint) {
+        super.scroll(to: NSPoint(x: 0, y: newOrigin.y))
     }
 }
 
