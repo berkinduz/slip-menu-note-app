@@ -23,7 +23,7 @@ Requires **macOS 14+ and Apple Silicon**.
 Install with the [Homebrew tap](https://github.com/berkinduz/homebrew-tap):
 
 ```sh
-brew install --cask berkinduz/tap/berkinduz-slip
+brew install --cask berkinduz/tap/slip
 ```
 
 Or download the [latest DMG](https://github.com/berkinduz/slip-menu-note-app/releases/latest), open it and drag **Slip → Applications**. Click its menu bar icon or press **⌃⌥N** to write.

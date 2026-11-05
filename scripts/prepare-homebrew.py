@@ -10,7 +10,7 @@ def main():
     project = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dmg", type=Path, help="The exact DMG that will be distributed")
-    parser.add_argument("--output", type=Path, default=project / "distribution/homebrew/Casks/berkinduz-slip.rb")
+    parser.add_argument("--output", type=Path, default=project / "distribution/homebrew/Casks/slip.rb")
     args = parser.parse_args()
     with (project / "Resources/Info.plist").open("rb") as file:
         version = plistlib.load(file)["CFBundleShortVersionString"]
@@ -21,7 +21,7 @@ def main():
     with args.dmg.open("rb") as file:
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
             digest.update(chunk)
-    template = (project / "distribution/homebrew/Casks/berkinduz-slip.rb.in").read_text()
+    template = (project / "distribution/homebrew/Casks/slip.rb.in").read_text()
     output = template.replace("@VERSION@", version).replace("@SHA256@", digest.hexdigest())
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(output)
