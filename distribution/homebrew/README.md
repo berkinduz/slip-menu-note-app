@@ -21,7 +21,7 @@ ruby -c distribution/homebrew/Casks/slip.rb
 
 If CI rebuilds the DMG, regenerate the cask from the actual published asset: rebuilding, signing or repackaging can change its checksum. The input filename must match the version in `Resources/Info.plist`. Do not substitute a placeholder checksum.
 
-After publishing a new release, copy the generated file to `Casks/slip.rb` in the shared tap. Preserve every other application's cask and the tap's rename metadata. The generator only writes a local file; it does not publish a release or update the tap. See the tap's [contribution guide](https://github.com/berkinduz/homebrew-tap/blob/main/CONTRIBUTING.md) for the workflow used by all projects.
+After publishing a new release, copy the generated file to `Casks/slip.rb` in the shared tap. Preserve every other application's cask and the tap's rename metadata. The generator only writes a local file; it does not publish a release or update the tap. See the maintainer's [publishing guide](https://github.com/berkinduz/homebrew-tap/blob/main/PUBLISHING.md) for the workflow used by berkinduz's projects.
 
 The cask declares macOS 14+ and Apple Silicon, installs `Slip.app`, and includes no command that removes a user's notebook or backups. It does not bypass Gatekeeper or remove quarantine attributes. The app and DMG are ad hoc signed, without Developer ID or notarization; macOS can require manual approval on first launch. See [Apple's opening-app guidance](https://support.apple.com/en-us/102445).
 
