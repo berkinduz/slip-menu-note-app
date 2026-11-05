@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 — 2026-11-05
+
+- Add Update & Restart: download and verify the new version, install it after Slip closes, and reopen the app with existing notes preserved.
+- Restore the previous app if the update cannot reopen, and respect cancelled quit requests during an update.
+- Simplify the README header around the app icon and quick notes from the menu bar.
+
 ## 0.3.0 — 2026-11-05
 
 - Add optional iCloud Drive folder sync with local offline storage, retained conflict copies, per-folder histories and download-aware status.

@@ -16,7 +16,7 @@ A native macOS notepad that lives in your menu bar.
 
 Requires **macOS 14+ and Apple Silicon**.
 
-Install with the [Homebrew tap](https://github.com/berkinduz/homebrew-tap):
+Install with the [Homebrew tap](https://github.com/berkinduz/tap):
 
 ```sh
 brew install --cask berkinduz/tap/slip
@@ -33,7 +33,7 @@ Builds are ad hoc signed and not notarized. If macOS blocks the first launch, fo
 - **Find things again.** Folders, manual tags, search, pinned notes, Trash and deletion Undo.
 - **Continue on another Mac.** Choose the same iCloud Drive folder on both Macs. Edit offline; conflicting edits are retained as separate notes. Preferences stay local.
 - **Keep your data.** Markdown import/export, complete Slip backups, automatic local snapshots and confirmed restore.
-- **Stay ready.** Launch at login, update checks, themes and typography settings. Panel size, caret and scroll position are remembered.
+- **Stay ready.** Launch at login, update checks and one-click Update & Restart, themes and typography settings. Panel size, caret and scroll position are remembered.
 
 <details>
 <summary>See the notebook and sync settings</summary>
@@ -48,7 +48,7 @@ Builds are ad hoc signed and not notarized. If macOS blocks the first launch, fo
 
 Notes are saved locally in `~/Library/Application Support/Slip/`. Sync is optional: select a folder in **Settings → Data & sync** on each Mac. iCloud Drive handles transfer; a local folder write does not confirm receipt on the other device. Backups remain separate from sync.
 
-Version 0.3.0 has local replica and editor tests; transfer between two physical Macs and login-after-reboot still need verification. See the [user guide](docs/USAGE.md) for setup, shortcuts and recovery.
+Version 0.3.1 has local replica and editor tests; transfer between two physical Macs and login-after-reboot still need verification. See the [user guide](docs/USAGE.md) for setup, shortcuts and recovery.
 
 ## Build from source
 

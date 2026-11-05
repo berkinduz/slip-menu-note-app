@@ -19,7 +19,7 @@ final class UpdateController {
     @ObservationIgnored private var timer: Task<Void, Never>?
 
     init(settings: PreferencesStore,
-         installedVersion: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.3.0",
+         installedVersion: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.3.1",
          fetchRelease: @escaping @Sendable () async throws -> SlipRelease = UpdateController.fetchPublicRelease,
          prepareUpdate: @escaping @Sendable (SlipRelease) async throws -> PreparedAppUpdate = { try await AppUpdater().prepare($0) },
          requestTermination: @escaping @MainActor () -> Void = { NSApp.terminate(nil) }) {
