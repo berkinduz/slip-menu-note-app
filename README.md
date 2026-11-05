@@ -20,9 +20,13 @@ A free, open-source **Mac notepad** for quick notes, live Markdown and to-do lis
 
 Requires **macOS 14+ and Apple Silicon**.
 
-Download the [latest DMG](https://github.com/berkinduz/slip-menu-note-app/releases/latest), open it and drag **Slip → Applications**. Click its menu bar icon or press **⌃⌥N** to write.
+Install with the [Homebrew tap](https://github.com/berkinduz/homebrew-tap):
 
-**Release status:** the features below are in the **0.3.0 source**. The latest published package is **0.2.2**. Homebrew distribution is prepared but not yet published; [build from source](#build-from-source) to use 0.3.0 now.
+```sh
+brew install --cask berkinduz/tap/berkinduz-slip
+```
+
+Or download the [latest DMG](https://github.com/berkinduz/slip-menu-note-app/releases/latest), open it and drag **Slip → Applications**. Click its menu bar icon or press **⌃⌥N** to write.
 
 Builds are ad hoc signed and not notarized. If macOS blocks the first launch, follow [Apple’s opening-app guidance](https://support.apple.com/en-us/102445).
 
@@ -59,7 +63,7 @@ swift test
 ./scripts/build-app.sh
 ```
 
-Built with **SwiftUI and AppKit**. The script creates `Slip.app` beside the repository. [Contribute](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Homebrew preparation](distribution/homebrew/README.md).
+Built with **SwiftUI and AppKit**. The script creates `Slip.app` beside the repository. [Contribute](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Homebrew distribution](distribution/homebrew/README.md).
 
 Made by [berkinduz](https://github.com/berkinduz). [Buy me a coffee](https://buymeacoffee.com/berkinduz).
 

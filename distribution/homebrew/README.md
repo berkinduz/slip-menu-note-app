@@ -1,8 +1,16 @@
-# Homebrew distribution preparation
+# Homebrew distribution
 
-This directory prepares a custom tap; it does not publish one. Version 0.3.0 is not yet a public release. The generated cask refers to its future versioned GitHub release URL and must not be advertised as installable before that exact asset is published.
+Slip is distributed through [berkinduz/homebrew-tap](https://github.com/berkinduz/homebrew-tap):
 
-After building and verifying the final DMG, generate the cask from its real bytes:
+```sh
+brew install --cask berkinduz/tap/berkinduz-slip
+```
+
+To update, run `brew update` followed by `brew upgrade --cask berkinduz/tap/berkinduz-slip`. If you installed the app manually before using Homebrew, quit Slip and move that app out of Applications before installing the cask. Your notebook is stored separately in Application Support.
+
+## Maintaining the cask
+
+Generate the cask from the exact published DMG:
 
 ```sh
 python3 scripts/prepare-homebrew.py .build/artifacts/Slip-v0.3.0-macos-arm64.dmg
@@ -11,11 +19,7 @@ ruby -c distribution/homebrew/Casks/berkinduz-slip.rb
 
 If CI rebuilds the DMG, regenerate the cask from the actual published asset: rebuilding, signing or repackaging can change its checksum. The input filename must match the version in `Resources/Info.plist`. Do not substitute a placeholder checksum.
 
-The eventual tap repository is `berkinduz/homebrew-tap`, with the generated file at `Casks/berkinduz-slip.rb`. Creating that repository, publishing the release and pushing the cask are separate publishing actions. Once those actions are explicitly authorized and completed, the intended installation is:
-
-```sh
-brew install --cask berkinduz/tap/berkinduz-slip
-```
+After publishing a new release, copy the generated file to `Casks/berkinduz-slip.rb` in the tap and commit it. The generator only writes a local file; it does not publish a release or update the tap.
 
 The cask declares macOS 14+ and Apple Silicon, installs `Slip.app`, and includes no command that removes a user's notebook or backups. It does not bypass Gatekeeper or remove quarantine attributes. The app and DMG are ad hoc signed, without Developer ID or notarization; macOS can require manual approval on first launch. See [Apple's opening-app guidance](https://support.apple.com/en-us/102445).
 

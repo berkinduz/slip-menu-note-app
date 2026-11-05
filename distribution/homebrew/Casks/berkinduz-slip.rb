@@ -1,6 +1,6 @@
 cask "berkinduz-slip" do
   version "0.3.0"
-  sha256 "9176fec26e02bb785b120c39cb4ed3f293edcb2652c7db08f6ac28d0d84f2707"
+  sha256 "dd59b9fc72adbc28dc815a0291df37b28f020961419f0b2edac65469312b857c"
 
   url "https://github.com/berkinduz/slip-menu-note-app/releases/download/v#{version}/Slip-v#{version}-macos-arm64.dmg"
   name "Slip"
@@ -8,7 +8,7 @@ cask "berkinduz-slip" do
   homepage "https://github.com/berkinduz/slip-menu-note-app"
 
   depends_on arch: :arm64
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Slip.app"
 end

@@ -8,7 +8,7 @@ cask "berkinduz-slip" do
   homepage "https://github.com/berkinduz/slip-menu-note-app"
 
   depends_on arch: :arm64
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Slip.app"
 end
