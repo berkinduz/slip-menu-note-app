@@ -2,19 +2,19 @@
 
 <img src="docs/images/icon.png" alt="Slip app icon" width="80">
 
-# Slip — macOS menu bar notes
+# Slip — Quick notes from your Mac menu bar
 
-**Less to manage. More room to think.**
+**Click the menu bar icon. Write a note. Get back to work.**
 
-A free, open-source **Mac notepad** for quick notes, live Markdown and to-do lists. Open it, catch a thought, and get back to work. No title required.
+A free, open-source **macOS menu bar notepad**. Press **⌃⌥N** from any app to capture a thought, a quick checklist or a bit of Markdown. Press **Escape** to tuck it away. Your notes save automatically.
 
 **Native macOS · Works offline · Optional iCloud Drive sync · No Slip account**
 
-[Download](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [Features](#a-small-notebook-for-every-day) · [User guide](docs/USAGE.md) · [Report an issue](https://github.com/berkinduz/slip-menu-note-app/issues)
+[Download](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [Features](#made-for-quick-capture) · [User guide](docs/USAGE.md) · [Report an issue](https://github.com/berkinduz/slip-menu-note-app/issues)
 
 </div>
 
-![Slip showing live Markdown, a checklist, folders and tags in its compact notes panel](docs/images/daily-use.png)
+![Slip’s highlighted icon in the macOS menu bar with its quick-note panel open directly beneath it](docs/images/hero.png)
 
 ## Install
 
@@ -30,9 +30,9 @@ Or download the [latest DMG](https://github.com/berkinduz/slip-menu-note-app/rel
 
 Builds are ad hoc signed and not notarized. If macOS blocks the first launch, follow [Apple’s opening-app guidance](https://support.apple.com/en-us/102445).
 
-## A small notebook for every day
+## Made for quick capture
 
-- **Capture quickly.** A global shortcut, optional titles, autosave and a panel you can keep open across apps.
+- **Always in your menu bar.** One click or **⌃⌥N** opens your notes over the app you’re using. Write immediately without a title; pin the panel to keep it open across apps.
 - **Write in Markdown.** Live formatting, clickable checklists, links, code blocks and `/` commands. Complete a task with **⌘Return**; paste a URL over selected text to make a link.
 - **Find things again.** Folders, manual tags, search, pinned notes, Trash and deletion Undo.
 - **Continue on another Mac.** Choose the same iCloud Drive folder on both Macs. Edit offline; conflicting edits are retained as separate notes. Preferences stay local.
@@ -40,7 +40,9 @@ Builds are ad hoc signed and not notarized. If macOS blocks the first launch, fo
 - **Stay ready.** Launch at login, update checks, themes and typography settings. Panel size, caret and scroll position are remembered.
 
 <details>
-<summary>See sync, backup and import/export settings</summary>
+<summary>See the notebook and sync settings</summary>
+
+![Slip’s compact notebook with live Markdown, checklists, folders and tags](docs/images/daily-use.png)
 
 ![Slip’s Data & sync settings with iCloud Drive folder selection, Markdown transfer and backup recovery](docs/images/data-sync.png)
 
