@@ -2,6 +2,21 @@ import AppKit
 
 @main enum SlipApplication {
     @MainActor static func main() {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.count == 3, arguments[1] == "--complete-update" {
+            do {
+                try PreparedAppUpdate.complete(at: URL(fileURLWithPath: arguments[2]))
+            } catch {
+                let application = NSApplication.shared
+                application.setActivationPolicy(.accessory)
+                application.activate(ignoringOtherApps: true)
+                let alert = NSAlert(error: error)
+                alert.messageText = "Slip couldn’t update"
+                alert.runModal()
+                exit(EXIT_FAILURE)
+            }
+            return
+        }
         let application = NSApplication.shared
         let delegate = AppDelegate()
         application.delegate = delegate
@@ -42,13 +57,18 @@ import AppKit
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let notebook = controller?.workspace.notebook else { return .terminateNow }
         notebook.flush()
-        guard notebook.canWrite, notebook.saveState == .failed else { return .terminateNow }
-        let alert = NSAlert()
-        alert.messageText = "Your latest changes haven’t been saved."
-        alert.informativeText = "Keep Slip open to try again, or quit and lose the unsaved changes."
-        alert.addButton(withTitle: "Keep open")
-        alert.addButton(withTitle: "Quit without saving")
-        return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
+        if notebook.canWrite, notebook.saveState == .failed {
+            let alert = NSAlert()
+            alert.messageText = "Your latest changes haven’t been saved."
+            alert.informativeText = "Keep Slip open to try again, or quit and lose the unsaved changes."
+            alert.addButton(withTitle: "Keep open")
+            alert.addButton(withTitle: "Quit without saving")
+            if alert.runModal() != .alertSecondButtonReturn {
+                controller?.workspace.updates.cancelInstallation()
+                return .terminateCancel
+            }
+        }
+        return controller?.workspace.updates.launchPendingInstaller() == false ? .terminateCancel : .terminateNow
     }
 
     func applicationWillTerminate(_ notification: Notification) {

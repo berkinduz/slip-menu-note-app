@@ -1,16 +1,12 @@
 <div align="center">
 
-<img src="docs/images/icon.png" alt="Slip app icon" width="80">
+<img src="docs/images/icon.png" alt="Slip app icon" width="96">
 
-# Slip — Quick notes from your Mac menu bar
+# Slip
 
-**Click the menu bar icon. Write a note. Get back to work.**
+**Your notes. A click away.**
 
-A free, open-source **macOS menu bar notepad**. Press **⌃⌥N** from any app to capture a thought, a quick checklist or a bit of Markdown. Press **Escape** to tuck it away. Your notes save automatically.
-
-**Native macOS · Works offline · Optional iCloud Drive sync · No Slip account**
-
-[Download](https://github.com/berkinduz/slip-menu-note-app/releases/latest) · [Features](#made-for-quick-capture) · [User guide](docs/USAGE.md) · [Report an issue](https://github.com/berkinduz/slip-menu-note-app/issues)
+A native macOS notepad that lives in your menu bar.
 
 </div>
 

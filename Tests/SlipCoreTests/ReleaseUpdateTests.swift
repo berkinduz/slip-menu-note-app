@@ -35,6 +35,14 @@ struct ReleaseUpdateTests {
         }
     }
 
+    @Test("In-app updates select the matching ZIP and its published checksums")
+    func installationAssets() throws {
+        let data = Data(#"{"tag_name":"v0.4.0","html_url":"https://github.com/berkinduz/slip-menu-note-app/releases/tag/v0.4.0","draft":false,"prerelease":false,"assets":[{"name":"Slip-v0.3.0-macos-arm64.zip","browser_download_url":"https://example.com/old.zip"},{"name":"Slip-v0.4.0-macos-arm64.dmg","browser_download_url":"https://example.com/new.dmg"},{"name":"Slip-v0.4.0-macos-arm64.zip","browser_download_url":"https://example.com/new.zip"},{"name":"SHA256SUMS.txt","browser_download_url":"https://example.com/SHA256SUMS.txt"}]}"#.utf8)
+        let release = try JSONDecoder().decode(SlipRelease.self, from: data)
+        #expect(release.updateArchiveURL?.absoluteString == "https://example.com/new.zip")
+        #expect(release.checksumsURL?.lastPathComponent == "SHA256SUMS.txt")
+    }
+
     @Test("Automatic checks are throttled for a day while the first check is due")
     func dailyChecks() {
         let now = Date(timeIntervalSince1970: 100_000)

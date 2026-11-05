@@ -33,13 +33,19 @@ struct AboutSettings: View {
                 SettingsToggle("Check automatically", detail: "Look for new releases once a day.", value: $settings.preferences.automaticallyCheckUpdates)
                 SettingsDivider()
                 SettingsRow(updates.isChecking ? "Checking for updates…" : (updates.message ?? "Version \(updates.installedVersion)")) {
-                    Button("Check now") { Task { await updates.check() } }.disabled(updates.isChecking)
+                    Button("Check now") { Task { await updates.check() } }.disabled(updates.isChecking || updates.isInstalling)
                 }
                 if let release = updates.availableRelease {
                     HStack {
                         Link("Release notes", destination: release.notesURL)
                         Spacer()
-                        Link("Download \(release.tagName)", destination: release.downloadURL)
+                        if updates.isInstalling {
+                            ProgressView().controlSize(.small)
+                        }
+                        Button(updates.isInstalling ? "Updating…" : "Update & Restart") {
+                            Task { await updates.installUpdate() }
+                        }
+                        .disabled(updates.isInstalling || updates.isChecking)
                     }.font(.callout)
                 }
                 if let error = updates.errorMessage {

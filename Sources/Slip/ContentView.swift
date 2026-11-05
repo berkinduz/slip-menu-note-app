@@ -16,9 +16,13 @@ struct ContentView: View {
                     IconButton(symbol: "sidebar.left", label: "Toggle sidebar (⇧⌘S)") { workspace.toggleSidebar() }
                     Spacer()
                     if let release = workspace.updates.availableRelease {
-                        Link(destination: release.notesURL) {
+                        Button {
+                            workspace.settingsPane = .about
+                            workspace.openSettings()
+                        } label: {
                             Image(systemName: "arrow.down.circle").frame(width: 28, height: 28)
                         }
+                        .buttonStyle(.plain)
                         .foregroundStyle(style.accent)
                         .help("\(release.tagName) is available")
                         .accessibilityLabel("Update available: \(release.tagName)")

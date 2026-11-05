@@ -44,6 +44,14 @@ public struct SlipRelease: Decodable, Sendable {
         assets.first { $0.name.hasSuffix("-macos-arm64.dmg") }?.url ?? notesURL
     }
 
+    public var updateArchiveURL: URL? {
+        assets.first { $0.name == "Slip-\(tagName)-macos-arm64.zip" }?.url
+    }
+
+    public var checksumsURL: URL? {
+        assets.first { $0.name == "SHA256SUMS.txt" }?.url
+    }
+
     public func isNewer(than current: String) -> Bool {
         guard !draft, !prerelease, let version = ReleaseVersion(tagName), let installed = ReleaseVersion(current) else { return false }
         return version > installed
