@@ -28,7 +28,8 @@ import AppKit
         self.controller = controller
         shortcut = GlobalShortcut { [weak controller] in controller?.toggle() }
         workspace.hotKeyAvailable = shortcut?.isRegistered ?? false
-        if workspace.settings.preferences.showOnLaunch {
+        workspace.startServices()
+        if workspace.settings.preferences.showOnLaunch && !LoginItemController.launchedAtLogin {
             DispatchQueue.main.async { controller.show() }
         }
     }
@@ -51,6 +52,7 @@ import AppKit
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        controller?.workspace.stopServices()
         shortcut?.invalidate()
         controller?.cleanUp()
     }

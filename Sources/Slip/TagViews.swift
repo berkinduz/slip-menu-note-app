@@ -321,6 +321,16 @@ struct NoteFooter: View {
                 IconButton(symbol: "plus", label: "Add or edit tags", size: 24) { workspace.showTags = true }
             }
             Spacer(minLength: 4)
+            Label(workspace.notebook.saveState == .failed ? "Not saved" : (workspace.notebook.saveState == .saving ? "Saving on this Mac" : "Saved on this Mac"), systemImage: workspace.notebook.saveState == .failed ? "exclamationmark.circle" : (workspace.notebook.saveState == .saving ? "ellipsis.circle" : "checkmark.circle"))
+                .labelStyle(.iconOnly).font(.system(size: 10)).foregroundStyle(style.secondary)
+                .help(workspace.notebook.saveState == .failed ? "Not saved" : (workspace.notebook.saveState == .saving ? "Saving on this Mac" : "Saved on this Mac"))
+            if workspace.sync.folder != nil || workspace.sync.errorMessage != nil {
+                Button { workspace.showDataSettings() } label: {
+                    Image(systemName: workspace.sync.errorMessage == nil ? "icloud" : "icloud.slash")
+                        .font(.system(size: 11)).foregroundStyle(workspace.sync.errorMessage == nil ? style.secondary : .orange)
+                        .frame(width: 24, height: 24)
+                }.buttonStyle(.plain).help(workspace.sync.status).accessibilityLabel(workspace.sync.status)
+            }
             if preferences.showWordCount {
                 Text("\(note.wordCount) \(note.wordCount == 1 ? "word" : "words")").font(.system(size: 10)).foregroundStyle(style.secondary).lineLimit(1)
             }

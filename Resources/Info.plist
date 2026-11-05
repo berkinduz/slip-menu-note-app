@@ -19,9 +19,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.2</string>
+		<string>0.3.0</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+		<string>5</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
@@ -30,5 +30,21 @@
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+		<key>UTExportedTypeDeclarations</key>
+		<array>
+			<dict>
+				<key>UTTypeIdentifier</key>
+				<string>local.slip.notes.backup</string>
+				<key>UTTypeDescription</key>
+				<string>Slip Backup</string>
+				<key>UTTypeConformsTo</key>
+				<array><string>public.json</string></array>
+				<key>UTTypeTagSpecification</key>
+				<dict>
+					<key>public.filename-extension</key>
+					<array><string>slipbackup</string></array>
+				</dict>
+			</dict>
+		</array>
 </dict>
 </plist>

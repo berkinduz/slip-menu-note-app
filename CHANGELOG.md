@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-11-05
+
+- Add optional iCloud Drive folder sync with local offline storage, retained conflict copies, per-folder histories and download-aware status.
+- Add automatic local backups, confirmed recovery from local or exported backups, Markdown import and full-library Markdown export.
+- Add launch-at-login controls and quiet startup, plus automatic and manual checks for published updates.
+- Remember panel size and per-note selection/scroll, reveal search matches, and offer Undo after moving a note to Trash.
+- Add Command-Return task completion, list indentation and URL-over-selection linking while retaining existing formatting shortcuts.
+- Add packaging and checksum generation for a custom Homebrew tap.
+
 ## 0.2.2 — 2026-11-03
 
 - Introduce a notebook mark connecting the menu bar with a quick note, shared by the application and menu bar icons.

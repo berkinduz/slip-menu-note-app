@@ -13,10 +13,15 @@ struct MarkdownEditor: NSViewRepresentable {
     let selectionChanged: (NSRange) -> Void
     let onFocus: () -> Void
     let onLinkChanged: (Bool) -> Void
+    var session: EditorSessionStore? = nil
+    var searchQuery: String = ""
+    var searchRevealRequest: UUID? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
+        let savedPosition = session?.positions[noteID]
+        context.coordinator.isUpdating = true
         let scroll = NSScrollView()
         scroll.contentView = EditorClipView()
         scroll.drawsBackground = false
@@ -68,6 +73,23 @@ struct MarkdownEditor: NSViewRepresentable {
         editor.setSelectedRange(initialSelection.map { Self.clampedSelection($0, length: length) } ?? NSRange(location: length, length: 0))
         SyntaxHighlighter.apply(to: editor)
         scroll.documentView = editor
+        if let clip = scroll.contentView as? EditorClipView {
+            clip.onScroll = { [weak coordinator = context.coordinator, weak editor] in
+                guard let coordinator, let editor, !coordinator.isUpdating else { return }
+                coordinator.persist(editor)
+            }
+        }
+        if let offset = savedPosition?.scrollOffset {
+            DispatchQueue.main.async { [weak scroll, weak editor, weak coordinator = context.coordinator] in
+                guard let scroll, let editor, let coordinator else { return }
+                if let container = editor.textContainer { editor.layoutManager?.ensureLayout(for: container) }
+                scroll.contentView.scroll(to: NSPoint(x: 0, y: max(0, offset)))
+                scroll.reflectScrolledClipView(scroll.contentView)
+                coordinator.isUpdating = false
+            }
+        } else {
+            context.coordinator.isUpdating = false
+        }
         return scroll
     }
 
@@ -107,15 +129,24 @@ struct MarkdownEditor: NSViewRepresentable {
         if context.coordinator.lastFocusRequest != focusRequest {
             context.coordinator.lastFocusRequest = focusRequest
             if isActive {
-                let selectionToRestore = initialSelection
-                DispatchQueue.main.async { [weak editor] in
-                    guard let editor, editor.isEditable, let window = editor.window, window.isVisible else { return }
+                DispatchQueue.main.async { [weak editor, weak scroll] in
+                    guard let editor, let scroll, editor.isEditable, let window = editor.window, window.isVisible else { return }
+                    let origin = scroll.contentView.bounds.origin
                     window.makeFirstResponder(editor)
-                    if let selectionToRestore {
-                        editor.setSelectedRange(Self.clampedSelection(selectionToRestore, length: (editor.string as NSString).length))
-                    }
-                    editor.scrollRangeToVisible(editor.selectedRange())
+                    scroll.contentView.scroll(to: origin)
+                    scroll.reflectScrolledClipView(scroll.contentView)
                 }
+            }
+        }
+        if let request = searchRevealRequest, context.coordinator.lastSearchRequest != request {
+            context.coordinator.lastSearchRequest = request
+            let query = searchQuery
+            DispatchQueue.main.async { [weak editor] in
+                guard let editor, !query.isEmpty else { return }
+                let range = (editor.string as NSString).range(of: query, options: [.caseInsensitive, .diacriticInsensitive])
+                guard range.location != NSNotFound else { return }
+                editor.setSelectedRange(range)
+                editor.scrollRangeToVisible(range)
             }
         }
     }
@@ -130,6 +161,7 @@ struct MarkdownEditor: NSViewRepresentable {
         var parent: MarkdownEditor
         var isUpdating = false
         var lastFocusRequest: UUID?
+        var lastSearchRequest: UUID?
 
         init(_ parent: MarkdownEditor) {
             self.parent = parent
@@ -145,7 +177,13 @@ struct MarkdownEditor: NSViewRepresentable {
         func textViewDidChangeSelection(_ notification: Notification) {
             guard !isUpdating, let editor = notification.object as? NSTextView else { return }
             parent.selectionChanged(editor.selectedRange())
+            persist(editor)
             (editor as? SourceTextView)?.updateSlashCommands()
+        }
+
+        func persist(_ editor: NSTextView) {
+            guard let session = parent.session else { return }
+            session.positions[parent.noteID] = EditorPosition(selection: editor.selectedRange(), scrollOffset: Double(editor.enclosingScrollView?.contentView.bounds.origin.y ?? 0))
         }
 
         func textView(_ textView: NSTextView, willChangeSelectionFromCharacterRange oldSelectedCharRange: NSRange, toCharacterRange newSelectedCharRange: NSRange) -> NSRange {
@@ -157,6 +195,7 @@ struct MarkdownEditor: NSViewRepresentable {
 }
 
 @MainActor private final class EditorClipView: NSClipView {
+    var onScroll: (() -> Void)?
     // Notes wrap to the viewport; both gestures and caret scrolling stay vertical.
     override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
         var bounds = super.constrainBoundsRect(proposedBounds)
@@ -166,6 +205,7 @@ struct MarkdownEditor: NSViewRepresentable {
 
     override func scroll(to newOrigin: NSPoint) {
         super.scroll(to: NSPoint(x: 0, y: newOrigin.y))
+        onScroll?()
     }
 }
 
@@ -188,6 +228,11 @@ struct MarkdownEditor: NSViewRepresentable {
 
     override func keyDown(with event: NSEvent) {
         if slashCommands.handle(event) { return }
+        let flags = event.modifierFlags.intersection([.command, .control, .option, .shift])
+        if isEditable, !hasMarkedText(), event.keyCode == 36, flags == [.command],
+           let edit = MarkdownEditing.toggleTask(in: string, selection: selectedRange()) { apply(edit); return }
+        if isEditable, !hasMarkedText(), event.keyCode == 48, (flags.isEmpty || flags == [.shift]),
+           let edit = MarkdownEditing.indentList(in: string, selection: selectedRange(), outdent: flags.contains(.shift)) { apply(edit); return }
         if event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty,
            selectedRange().length == 0, event.keyCode == 123 || event.keyCode == 124 {
             let position = presentation.movingCaret(in: string, from: selectedRange().location, direction: event.keyCode == 123 ? -1 : 1)
@@ -208,6 +253,13 @@ struct MarkdownEditor: NSViewRepresentable {
         guard isEditable else { return }
         if let edit = presentation.forwardDeletion(in: string, selection: selectedRange()) { apply(edit) }
         else { super.deleteForward(sender) }
+    }
+
+    override func paste(_ sender: Any?) {
+        if isEditable, let value = NSPasteboard.general.string(forType: .string),
+           let edit = MarkdownEditing.pasteURL(value, in: string, selection: selectedRange()) {
+            apply(edit)
+        } else { super.paste(sender) }
     }
 
     override func copy(_ sender: Any?) {

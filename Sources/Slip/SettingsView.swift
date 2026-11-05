@@ -5,7 +5,7 @@ struct SettingsView: View {
     @Bindable var workspace: Workspace
     var onPaneChange: (SettingsPane) -> Void
     @Environment(\.slipStyle) private var style
-    @State private var pane: SettingsPane = .appearance
+    private var pane: SettingsPane { workspace.settingsPane }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -17,7 +17,7 @@ struct SettingsView: View {
                 }.padding(.horizontal, 16)
                 VStack(spacing: 4) {
                     ForEach(SettingsPane.allCases) { item in
-                        Button { pane = item } label: {
+                        Button { workspace.settingsPane = item } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: item.symbol).font(.system(size: 14)).frame(width: 20)
                                 Text(item.title).font(.system(size: 12, weight: pane == item ? .medium : .regular))
@@ -48,7 +48,8 @@ struct SettingsView: View {
                         case .editor: EditorSettings(store: workspace.settings)
                         case .capture: CaptureSettings(workspace: workspace)
                         case .organization: OrganizationSettings(workspace: workspace)
-                        case .about: AboutSettings()
+                        case .data: DataSettings(workspace: workspace)
+                        case .about: AboutSettings(updates: workspace.updates, settings: workspace.settings)
                         }
                         if let error = workspace.settings.errorMessage {
                             Label(error, systemImage: "exclamationmark.triangle")
@@ -161,6 +162,16 @@ private struct CaptureSettings: View {
         @Bindable var store = workspace.settings
         VStack(spacing: 20) {
             SettingsSection("Ready when you are") {
+                SettingsToggle("Launch at login", detail: "Keep Slip ready in the menu bar when you log in.", value: Binding(get: { workspace.loginItem.isEnabled }, set: { workspace.loginItem.setEnabled($0) }))
+                if workspace.loginItem.requiresApproval {
+                    SettingsRow("Allow Slip in Login Items", detail: "macOS needs your approval to start Slip at login.") {
+                        Button("Open System Settings") { workspace.loginItem.openSystemSettings() }
+                    }
+                }
+                if let error = workspace.loginItem.errorMessage {
+                    Text(error).font(.callout).foregroundStyle(.orange)
+                }
+                SettingsDivider()
                 SettingsRow("Open or hide Slip") { KeyCap(text: "⌃⌥N") }
                 SettingsDivider()
                 SettingsToggle("Show panel on launch", value: $store.preferences.showOnLaunch)
@@ -183,6 +194,8 @@ private struct CaptureSettings: View {
                     .font(.callout).foregroundStyle(.secondary)
             }
         }
+        .onAppear { workspace.loginItem.refresh() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in workspace.loginItem.refresh() }
     }
 }
 

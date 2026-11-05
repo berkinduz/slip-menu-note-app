@@ -9,6 +9,14 @@ enum InputFocus { case body, title, search }
 final class Workspace {
     let notebook: Notebook
     let settings: PreferencesStore
+    let editorSession: EditorSessionStore
+    let sync: FolderSyncController
+    let updates: UpdateController
+    let loginItem: LoginItemController
+    let backupStore: LibraryBackupStore
+    var backups: [LibraryBackup] = []
+    var backupToRestore: URL?
+    var settingsPane: SettingsPane = .appearance
     var query = ""
     var filter: NoteFilter = .all
     var sidebarVisible = false
@@ -28,8 +36,10 @@ final class Workspace {
     var focusRequest = UUID()
     var inputFocus: InputFocus = .body
     var searchRequest: UUID?
+    var searchRevealRequest: UUID?
     var hotKeyAvailable = true
     var transientMessage: String?
+    var undoTrashID: UUID?
     var operationError: String?
     @ObservationIgnored var onDismiss: (() -> Void)?
     @ObservationIgnored var onResize: ((Bool) -> Void)?
@@ -39,9 +49,15 @@ final class Workspace {
 
     init(directory: URL) {
         settings = PreferencesStore(directory: directory)
+        editorSession = EditorSessionStore(directory: directory)
+        editorSelections = editorSession.positions.mapValues(\.selection)
         sidebarVisible = settings.preferences.sidebarAtLaunch
         let blank = Note()
         notebook = Notebook(repository: NoteRepository(directory: directory), initialNotes: [blank])
+        sync = FolderSyncController(notebook: notebook, settings: settings)
+        updates = UpdateController(settings: settings)
+        loginItem = LoginItemController()
+        backupStore = LibraryBackupStore(directory: directory.appendingPathComponent("backups"))
         if notebook.selectedNote == nil, notebook.canWrite {
             if let first = notebook.library.filtered(by: .all).first { notebook.select(first.id) }
         }
@@ -52,8 +68,10 @@ final class Workspace {
         return notebook.library.filtered(by: filter, query: search.text, sort: settings.preferences.noteSort).filter(search.matches)
     }
 
+    var editorSearchQuery: String { NoteSearchQuery(query).text }
+
     var currentFolderID: UUID? {
-        if case .folder(let id) = filter { return id }
+        if case .folder(let id) = filter, notebook.library.folders.contains(where: { $0.id == id }) { return id }
         return nil
     }
 
@@ -63,6 +81,17 @@ final class Workspace {
     }
 
     func openSettings() { onSettings?() }
+
+    func showDataSettings() { settingsPane = .data; openSettings() }
+
+    func checkForUpdates() {
+        settingsPane = .about
+        openSettings()
+        Task { await updates.check() }
+    }
+
+    func startServices() { sync.start(); updates.start() }
+    func stopServices() { sync.stop(); updates.stop(); editorSession.flush() }
 
     func renameTag(_ tag: String, to value: String) {
         guard let name = Note.normalizedTags([value]).first, name != tag, notebook.canWrite else { return }
@@ -87,6 +116,7 @@ final class Workspace {
 
     func newNote() {
         guard notebook.canWrite else { return }
+        searchRevealRequest = nil
         let tags: [String]
         if case .tag(let tag) = filter { tags = [tag] } else { tags = [] }
         let folderID = currentFolderID
@@ -113,10 +143,12 @@ final class Workspace {
 
     func select(_ note: Note) {
         notebook.select(note.id)
+        searchRevealRequest = editorSearchQuery.isEmpty ? nil : UUID()
         focusBody()
     }
 
     func changeFilter(_ value: NoteFilter) {
+        searchRevealRequest = nil
         filter = value
         let notes = visibleNotes
         if !notes.contains(where: { $0.id == notebook.selectedNote?.id }) { notebook.select(notes.first?.id) }
@@ -184,9 +216,20 @@ final class Workspace {
             notebook.select(visibleNotes.first?.id)
         }
         message("Moved to Trash")
+        undoTrashID = id
+    }
+
+    func undoTrash() {
+        guard let id = undoTrashID else { return }
+        notebook.restore(id)
+        filter = .all
+        notebook.select(id)
+        message("Note restored")
+        focusBody()
     }
 
     func restore(_ id: UUID) {
+        searchRevealRequest = nil
         notebook.restore(id)
         filter = .all
         message("Note restored")
@@ -221,11 +264,13 @@ final class Workspace {
     }
 
     func message(_ text: String) {
+        undoTrashID = nil
         transientMessage = text
         messageTask?.cancel()
         messageTask = Task { [weak self] in
             do { try await Task.sleep(for: .seconds(2)) } catch { return }
             self?.transientMessage = nil
+            self?.undoTrashID = nil
         }
     }
 }

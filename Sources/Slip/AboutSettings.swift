@@ -1,7 +1,10 @@
 import AppKit
 import SwiftUI
+import SlipCore
 
 struct AboutSettings: View {
+    @Bindable var updates: UpdateController
+    @Bindable var settings: PreferencesStore
     @Environment(\.slipStyle) private var style
 
     var body: some View {
@@ -25,6 +28,25 @@ struct AboutSettings: View {
             Text("Quick notes. Always within reach.")
                 .font(.callout)
                 .foregroundStyle(style.secondary)
+
+            SettingsSection("Updates") {
+                SettingsToggle("Check automatically", detail: "Look for new releases once a day.", value: $settings.preferences.automaticallyCheckUpdates)
+                SettingsDivider()
+                SettingsRow(updates.isChecking ? "Checking for updates…" : (updates.message ?? "Version \(updates.installedVersion)")) {
+                    Button("Check now") { Task { await updates.check() } }.disabled(updates.isChecking)
+                }
+                if let release = updates.availableRelease {
+                    HStack {
+                        Link("Release notes", destination: release.notesURL)
+                        Spacer()
+                        Link("Download \(release.tagName)", destination: release.downloadURL)
+                    }.font(.callout)
+                }
+                if let error = updates.errorMessage {
+                    Text(error).font(.callout).foregroundStyle(.orange)
+                }
+            }
+            .multilineTextAlignment(.leading)
 
             VStack(spacing: 14) {
                 Link(destination: URL(string: "https://github.com/berkinduz")!) {

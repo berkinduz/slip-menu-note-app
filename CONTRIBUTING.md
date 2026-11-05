@@ -21,7 +21,7 @@ Keep changes focused, include tests when they help verify behavior, and describe
 
 Maintainers update the version in `Resources/Info.plist` and the release notes, then push a matching `v` tag such as `v0.2.1`. The release workflow tests and builds on an Apple Silicon macOS runner, signs the app and DMG ad hoc, and publishes both the drag-to-Applications DMG and an optional ZIP with SHA-256 checksums. Signing with a Developer ID and notarization are not part of this workflow.
 
-To check the installer locally after building the app:
+To check the installer locally after building the app, use **Python 3.10 or later** for the pinned packaging tools (the Python bundled with Xcode command-line tools can be older):
 
 ```sh
 python3 -m venv .build/dmg-tools
@@ -30,3 +30,5 @@ SLIP_DMG_PYTHON=.build/dmg-tools/bin/python ./scripts/build-dmg.sh
 ```
 
 The script creates `Slip.dmg` next to the repository. Its Finder layout is written directly, so packaging does not require a GUI session.
+
+After validating the final release artifact, follow the [Homebrew preparation guide](distribution/homebrew/README.md) to generate a cask with its actual checksum. The local preparation script does not publish a release or tap.

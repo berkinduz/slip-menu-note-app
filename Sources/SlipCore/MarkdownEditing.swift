@@ -63,6 +63,63 @@ public enum MarkdownEditing {
         return MarkdownEdit(range: selection, replacement: replacement, selection: NSRange(location: selection.location + (replacement as NSString).length, length: 0))
     }
 
+    public static func toggleTask(in source: String, selection: NSRange) -> MarkdownEdit? {
+        let text = source as NSString
+        guard selection.location <= text.length, !MarkdownDocument.isInsideFencedCode(at: selection.location, in: source) else { return nil }
+        let line = text.lineRange(for: NSRange(location: selection.location, length: 0))
+        let value = text.substring(with: line)
+        let regex = try! NSRegularExpression(pattern: #"^[ \t]*[-*+] +\[([ xX])\]"#)
+        guard let match = regex.firstMatch(in: value, range: NSRange(location: 0, length: (value as NSString).length)) else { return nil }
+        let marker = match.range(at: 1)
+        let character = (value as NSString).substring(with: marker)
+        return MarkdownEdit(range: NSRange(location: line.location + marker.location, length: 1), replacement: character == " " ? "x" : " ", selection: selection)
+    }
+
+    public static func indentList(in source: String, selection: NSRange, outdent: Bool) -> MarkdownEdit? {
+        let text = source as NSString
+        guard selection.location <= text.length, NSMaxRange(selection) <= text.length else { return nil }
+        let target = selection.length > 0 ? NSRange(location: selection.location, length: selection.length - 1) : selection
+        let range = text.lineRange(for: target)
+        let original = text.substring(with: range)
+        let regex = try! NSRegularExpression(pattern: #"^[ \t]*(?:[-*+]|\d+[.)]) +"#)
+        var offset = range.location
+        var changes: [(location: Int, removed: Int, inserted: Int)] = []
+        let lines = original.components(separatedBy: "\n")
+        let result = lines.map { line -> String in
+            defer { offset += (line as NSString).length + 1 }
+            guard !line.isEmpty, !MarkdownDocument.isInsideFencedCode(at: offset, in: source), regex.firstMatch(in: line, range: NSRange(location: 0, length: (line as NSString).length)) != nil else { return line }
+            if !outdent { changes.append((offset, 0, 2)); return "  " + line }
+            if line.hasPrefix("  ") { changes.append((offset, 2, 0)); return String(line.dropFirst(2)) }
+            if line.hasPrefix(" ") || line.hasPrefix("\t") { changes.append((offset, 1, 0)); return String(line.dropFirst()) }
+            return line
+        }.joined(separator: "\n")
+        guard !changes.isEmpty else { return nil }
+        func mapped(_ position: Int) -> Int {
+            var delta = 0
+            for change in changes where change.location <= position {
+                if position < change.location + change.removed { return change.location + delta + change.inserted }
+                delta += change.inserted - change.removed
+            }
+            return position + delta
+        }
+        let start = mapped(selection.location)
+        let end = mapped(NSMaxRange(selection))
+        return MarkdownEdit(range: range, replacement: result, selection: NSRange(location: start, length: max(0, end - start)))
+    }
+
+    public static func pasteURL(_ url: String, in source: String, selection: NSRange) -> MarkdownEdit? {
+        let text = source as NSString
+        guard selection.length > 0, selection.location <= text.length, NSMaxRange(selection) <= text.length,
+              !MarkdownDocument.isInsideFencedCode(at: selection.location, in: source),
+              let components = URLComponents(string: url), let scheme = components.scheme?.lowercased(),
+              ["http", "https"].contains(scheme), components.host != nil,
+              url.rangeOfCharacter(from: .whitespacesAndNewlines) == nil else { return nil }
+        let label = text.substring(with: selection)
+        let destination = url.replacingOccurrences(of: "(", with: "%28").replacingOccurrences(of: ")", with: "%29")
+        let replacement = "[\(label)](\(destination))"
+        return MarkdownEdit(range: selection, replacement: replacement, selection: NSRange(location: selection.location + (replacement as NSString).length, length: 0))
+    }
+
     private static func wrap(_ prefix: String, suffix: String? = nil, source: NSString, range: NSRange) -> MarkdownEdit {
         let suffix = suffix ?? prefix
         let prefixLength = (prefix as NSString).length

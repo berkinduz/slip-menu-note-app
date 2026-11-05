@@ -25,6 +25,8 @@ struct MarkdownGuideView: View {
                         shortcut("Find a Note", "⌘F")
                         shortcut("Settings", "⌘,")
                         shortcut("Show / Hide Sidebar", "⇧⌘S")
+                        shortcut("Toggle Current Task", "⌘↩")
+                        shortcut("Indent / Outdent List", "Tab / ⇧Tab")
                         shortcut("Close and Save", "Esc")
                     }
                     Hairline()
@@ -39,7 +41,7 @@ struct MarkdownGuideView: View {
                         syntax("[text](url)", "Link", "⌘K")
                         syntax("`code`", "Inline Code", "⌘E")
                     }
-                    Text("Type / to insert a heading, list, task, code block, quote, divider, or link. Keep typing to filter; use ↑↓ and Return to choose. Esc dismisses the menu. Return continues a list; Return again on an empty item ends it.")
+                    Text("Type / to insert a heading, list, task, code block, quote, divider, or link. Keep typing to filter; use ↑↓ and Return to choose. Esc dismisses the menu. Return continues a list; Return again on an empty item ends it. Paste a URL over selected text to make a link.")
                         .font(.system(size: 11)).lineSpacing(4).foregroundStyle(style.secondary)
                 }.padding(24)
             }

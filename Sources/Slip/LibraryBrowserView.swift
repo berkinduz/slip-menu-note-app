@@ -9,7 +9,11 @@ struct LibraryBrowserView: View {
 
     private var folders: [NoteFolder] {
         workspace.notebook.library.folders.filter {
-            query.isEmpty ? $0.parentID == parentID : workspace.notebook.library.folderPath($0.id).localizedStandardContains(query)
+            if !query.isEmpty { return workspace.notebook.library.folderPath($0.id).localizedStandardContains(query) }
+            if parentID == nil, let ancestor = $0.parentID {
+                return !workspace.notebook.library.folders.contains { $0.id == ancestor }
+            }
+            return $0.parentID == parentID
         }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
     private var parent: NoteFolder? {

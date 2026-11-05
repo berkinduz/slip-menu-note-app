@@ -88,6 +88,10 @@ public struct AppPreferences: Codable, Equatable, Sendable {
     public var showOnLaunch = true
     public var autoCorrect = false
     public var smartPunctuation = false
+    public var automaticallyCheckUpdates = true
+    public var lastUpdateCheck: Date?
+    public var syncFolderBookmark: Data?
+    public var syncFolderStateIDs: [String: String] = [:]
 
     public init() { }
 
@@ -96,6 +100,7 @@ public struct AppPreferences: Codable, Equatable, Sendable {
         case continueLists, slashCommands, keepOpen, sidebarAtLaunch, tagIcons
         case accent, editorPadding, paragraphSpacing, noteSort, newNoteStyle
         case showNotePreviews, showWordCount, showOnLaunch, autoCorrect, smartPunctuation
+        case automaticallyCheckUpdates, lastUpdateCheck, syncFolderBookmark, syncFolderStateIDs
     }
 
     public init(from decoder: Decoder) throws {
@@ -121,6 +126,10 @@ public struct AppPreferences: Codable, Equatable, Sendable {
         showOnLaunch = try values.decodeIfPresent(Bool.self, forKey: .showOnLaunch) ?? true
         autoCorrect = try values.decodeIfPresent(Bool.self, forKey: .autoCorrect) ?? false
         smartPunctuation = try values.decodeIfPresent(Bool.self, forKey: .smartPunctuation) ?? false
+        automaticallyCheckUpdates = try values.decodeIfPresent(Bool.self, forKey: .automaticallyCheckUpdates) ?? true
+        lastUpdateCheck = try values.decodeIfPresent(Date.self, forKey: .lastUpdateCheck)
+        syncFolderBookmark = try values.decodeIfPresent(Data.self, forKey: .syncFolderBookmark)
+        syncFolderStateIDs = try values.decodeIfPresent([String: String].self, forKey: .syncFolderStateIDs) ?? [:]
     }
 }
 

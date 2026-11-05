@@ -19,7 +19,7 @@ import Observation
 
     init(workspace: Workspace) {
         self.workspace = workspace
-        panel = CapturePanel(contentRect: NSRect(x: 0, y: 0, width: workspace.sidebarVisible ? 712 : 500, height: 480), styleMask: [.borderless, .nonactivatingPanel, .resizable], backing: .buffered, defer: false)
+        panel = CapturePanel(contentRect: NSRect(x: 0, y: 0, width: workspace.editorSession.panelWidth ?? (workspace.sidebarVisible ? 712 : 500), height: workspace.editorSession.panelHeight ?? 480), styleMask: [.borderless, .nonactivatingPanel, .resizable], backing: .buffered, defer: false)
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
 
@@ -103,6 +103,12 @@ import Observation
                 self?.observeTheme()
             }
         }
+    }
+
+    func windowDidResize(_ notification: Notification) {
+        guard panel.inLiveResize else { return }
+        workspace.editorSession.panelWidth = panel.frame.width
+        workspace.editorSession.panelHeight = panel.frame.height
     }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool { dismiss(); return false }
@@ -256,6 +262,9 @@ import Observation
         case "guide": show(); workspace.showGuide = true
         case "folder": workspace.revealStorage()
         case "settings": showSettings()
+        case "dataSettings": workspace.showDataSettings()
+        case "updates": workspace.checkForUpdates()
+        case "import": workspace.importNotes()
         case "quit": NSApp.terminate(nil)
         case let name?: if let action = MarkdownAction(rawValue: name) { formatBody(action) }
         default: break
@@ -278,6 +287,8 @@ import Observation
         keep.state = workspace.keepOpen ? .on : .off
         menu.addItem(keep)
         menu.addItem(item("Settings…", "settings", key: ","))
+        menu.addItem(item("Data & sync…", "dataSettings"))
+        menu.addItem(item("Check for updates…", "updates"))
         menu.addItem(item("Keyboard shortcuts", "guide"))
         menu.addItem(item("Show notes folder", "folder"))
         menu.addItem(.separator())
@@ -293,6 +304,7 @@ import Observation
         }
         let app = submenu("Slip")
         app.addItem(item("Settings…", "settings", key: ","))
+        app.addItem(item("Check for updates…", "updates"))
         app.addItem(item("Keyboard shortcuts", "guide"))
         app.addItem(.separator())
         app.addItem(NSMenuItem(title: "Hide Slip", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
@@ -301,6 +313,7 @@ import Observation
         file.addItem(item("New note", "new", key: "n"))
         file.addItem(item("New folder…", "newFolder", key: "n", shift: true))
         file.addItem(item("Export Markdown…", "export"))
+        file.addItem(item("Import notes…", "import"))
         file.addItem(item("Close", "close", key: "w"))
         let edit = submenu("Edit")
         for (title, selector, key, shift) in [("Undo", "undo:", "z", false), ("Redo", "redo:", "z", true), ("Cut", "cut:", "x", false), ("Copy", "copy:", "c", false), ("Paste", "paste:", "v", false), ("Select all", "selectAll:", "a", false)] {

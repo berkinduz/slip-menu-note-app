@@ -159,6 +159,52 @@ public final class Notebook {
         scheduleSave()
     }
 
+    @discardableResult
+    public func applySynchronizedLibrary(_ incoming: NoteLibrary, basedOn snapshot: NoteLibrary) throws -> Bool {
+        guard library.notes == snapshot.notes, library.folders == snapshot.folders else { return false }
+        if library.notes != incoming.notes || library.folders != incoming.folders {
+            try replaceLibrary(incoming)
+        }
+        return true
+    }
+
+    public func replaceLibrary(_ incoming: NoteLibrary, preservingSelection: Bool = true) throws {
+        guard canWrite else { throw CocoaError(.fileWriteNoPermission) }
+        var replacement = incoming
+        if preservingSelection { replacement.selectedNoteID = library.selectedNoteID }
+        if !replacement.notes.contains(where: { $0.id == replacement.selectedNoteID }) {
+            replacement.selectedNoteID = replacement.filtered(by: .all).first?.id
+        }
+        _ = try LibraryBackupStore(directory: directory.appendingPathComponent("backups")).create(library)
+        try repository.save(replacement)
+        pendingSave?.cancel()
+        pendingSave = nil
+        library = replacement
+        isDirty = false
+        errorMessage = nil
+        saveState = .saved
+    }
+
+    public func restoreLibrary(_ incoming: NoteLibrary) throws {
+        if canWrite {
+            flush()
+            if saveState == .failed {
+                _ = try LibraryBackupStore(directory: directory.appendingPathComponent("backups")).create(library)
+            }
+        }
+        try repository.restore(incoming)
+        pendingSave?.cancel()
+        pendingSave = nil
+        library = incoming
+        if !library.notes.contains(where: { $0.id == library.selectedNoteID }) {
+            library.selectedNoteID = library.filtered(by: .all).first?.id
+        }
+        canWrite = true
+        isDirty = false
+        errorMessage = nil
+        saveState = .saved
+    }
+
     public func flush() {
         pendingSave?.cancel()
         pendingSave = nil

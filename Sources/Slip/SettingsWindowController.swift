@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case appearance, editor, capture, organization, about
+    case appearance, editor, capture, organization, data, about
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -10,6 +10,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .editor: "Editor"
         case .capture: "Quick capture"
         case .organization: "Organization"
+        case .data: "Data & sync"
         case .about: "About Slip"
         }
     }
@@ -19,6 +20,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .editor: "textformat"
         case .capture: "bolt"
         case .organization: "square.stack"
+        case .data: "externaldrive.badge.icloud"
         case .about: "info.circle"
         }
     }

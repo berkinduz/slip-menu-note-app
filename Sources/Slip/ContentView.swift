@@ -15,6 +15,14 @@ struct ContentView: View {
                 HStack(spacing: 3) {
                     IconButton(symbol: "sidebar.left", label: "Toggle sidebar (⇧⌘S)") { workspace.toggleSidebar() }
                     Spacer()
+                    if let release = workspace.updates.availableRelease {
+                        Link(destination: release.notesURL) {
+                            Image(systemName: "arrow.down.circle").frame(width: 28, height: 28)
+                        }
+                        .foregroundStyle(style.accent)
+                        .help("\(release.tagName) is available")
+                        .accessibilityLabel("Update available: \(release.tagName)")
+                    }
                     IconButton(symbol: "square.and.pencil", label: "New note (⌘N)") { workspace.newNote() }
                         .disabled(!workspace.notebook.canWrite)
                     IconButton(symbol: workspace.keepOpen ? "pin.fill" : "pin", label: workspace.keepOpen ? "Unpin panel" : "Keep panel open", selected: workspace.keepOpen) {
@@ -51,13 +59,25 @@ struct ContentView: View {
         .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(style.line.opacity(0.7), lineWidth: 0.5))
         .overlay(alignment: .bottom) {
             if let message = workspace.transientMessage {
-                Text(message).font(.system(size: 11)).foregroundStyle(style.text)
+                HStack(spacing: 10) {
+                    Text(message)
+                    if workspace.undoTrashID != nil {
+                        Button("Undo") { workspace.undoTrash() }
+                            .buttonStyle(.plain).foregroundStyle(style.accent)
+                    }
+                }
+                    .font(.system(size: 11)).foregroundStyle(style.text)
                     .padding(.horizontal, 11).padding(.vertical, 7)
                     .background(style.popup, in: Capsule()).padding(.bottom, 12)
-                    .allowsHitTesting(false)
             }
         }
         .sheet(isPresented: $workspace.showGuide) { MarkdownGuideView() }
+        .onChange(of: workspace.notebook.library.folders) {
+            if case .folder(let id) = workspace.filter,
+               !workspace.notebook.library.folders.contains(where: { $0.id == id }) {
+                workspace.changeFilter(.all)
+            }
+        }
         .sheet(item: $workspace.folderPrompt) { prompt in FolderEditorView(workspace: workspace, prompt: prompt) }
         .alert("Remove folder?", isPresented: Binding(get: { workspace.folderToRemove != nil }, set: { if !$0 { workspace.folderToRemove = nil } }), presenting: workspace.folderToRemove) { id in
             Button("Cancel", role: .cancel) { }
@@ -71,7 +91,7 @@ struct ContentView: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete permanently", role: .destructive) { workspace.notebook.emptyTrash() }
         } message: { Text("Notes in Trash will be permanently deleted.") }
-        .alert("Couldn’t export note", isPresented: Binding(get: { workspace.operationError != nil }, set: { if !$0 { workspace.operationError = nil } })) {
+        .alert("Couldn’t complete this action", isPresented: Binding(get: { workspace.operationError != nil }, set: { if !$0 { workspace.operationError = nil } })) {
             Button("Ok", role: .cancel) { workspace.operationError = nil }
         } message: { Text(workspace.operationError ?? "") }
     }
@@ -125,7 +145,10 @@ private struct NoteDetailView: View {
                     onFocus: {
                         if workspace.inputFocus != .body { workspace.inputFocus = .body }
                     },
-                    onLinkChanged: { workspace.isEditingLink = $0 }
+                    onLinkChanged: { workspace.isEditingLink = $0 },
+                    session: workspace.editorSession,
+                    searchQuery: workspace.editorSearchQuery,
+                    searchRevealRequest: workspace.searchRevealRequest
                 )
                 if note.body.isEmpty && note.deletedAt == nil {
                     Text("Write a note…").font(EditorTypography.swiftUIFont(preferences)).foregroundStyle(style.tertiary)
@@ -182,6 +205,8 @@ struct NoteMenu: View {
                 }
             }
             Button("Settings…") { workspace.openSettings() }.keyboardShortcut(",")
+            Button("Data & sync…") { workspace.showDataSettings() }
+            Button("Check for updates…") { workspace.checkForUpdates() }
             Button("Keyboard shortcuts") { workspace.showGuide = true }
             Divider()
             Button("Quit Slip") { NSApp.terminate(nil) }.keyboardShortcut("q")
