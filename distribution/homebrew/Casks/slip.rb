@@ -1,6 +1,6 @@
 cask "slip" do
-  version "0.3.0"
-  sha256 "dd59b9fc72adbc28dc815a0291df37b28f020961419f0b2edac65469312b857c"
+  version "0.3.1"
+  sha256 "802ca80054af118bd08260335225c52895c1e8d14eb036073e36da0d108906ed"
 
   url "https://github.com/berkinduz/slip-menu-note-app/releases/download/v#{version}/Slip-v#{version}-macos-arm64.dmg"
   name "Slip"
